@@ -13,7 +13,7 @@
 #include <glad/glad.h>
 
 #include "../shaders/SkyboxShader.h"
-#include "../Loader.h"
+#include "../loader/loader.h"
 
 class SkyboxRenderer
 {

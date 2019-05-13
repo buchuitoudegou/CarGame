@@ -2,7 +2,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "tiny_obj_loader.h"
+#include "../tiny_obj_loader/tiny_obj_loader.h"
 #include <glad/glad.h>
 
 #include <vector>

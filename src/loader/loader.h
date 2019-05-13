@@ -3,10 +3,10 @@
 #ifndef LOADER_H
 #define LOADER_H
 
-#include "stb_image.h"
-#include "tiny_obj_loader.h"
+#include "../stb_image/stb_image.h"
+#include "../tiny_obj_loader/tiny_obj_loader.h"
 #include <cstring>
-#include<sys/stat.h>
+#include <sys/stat.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -14,7 +14,7 @@
 #include "glm/glm.hpp"
 #include <glad/glad.h>
 
-#include "Model.h"
+#include "../model/model.h"
 struct Image {
 	unsigned char *data;
 	int width;
@@ -25,14 +25,14 @@ struct Image {
 	Image(unsigned char* data, int width, int height, int channels);
 	glm::vec3 getPixel(int x, int y);
 };
-//������
+
 class Loader
 {
 private:
 	static Loader* loader;
 	Loader();
 
-	// �����ص�����id���洢��map��
+
 	std::map<std::string, unsigned int> loadedTextures;
 	GLuint loadTextureData(GLubyte *data, int x, int y, int n, GLenum textureUnit);
 	GLuint setupBuffer(unsigned int buffer, std::vector<float> values, int attributeIndex, int dataDimension);

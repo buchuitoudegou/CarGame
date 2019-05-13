@@ -1,4 +1,4 @@
-#include "Loader.h"
+#include "loader.h"
 
 #define VALS_PER_VERT 3
 #define VALS_PER_NORMAL 3
@@ -90,7 +90,7 @@ Model Loader::loadModel(std::string filepath) {
 	if (filepath.find("/") != std::string::npos) {
 		std::string p = filepath.substr(0, filepath.find_last_of("\\/") + 1);
 		mtlPathChar = new char[p.length() + 1];
-		strcpy_s(mtlPathChar, p.length() + 1, p.c_str());
+		strcpy(mtlPathChar, p.c_str());
 	}
 
 	std::string mtlPath = "";

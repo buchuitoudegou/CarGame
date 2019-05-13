@@ -1,2 +1,2 @@
 # CarGame
-final projection of Computer Graphics
+final project of Computer Graphics

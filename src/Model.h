@@ -3,7 +3,7 @@
 #define MODEL_H
 
 #include "tiny_obj_loader.h"
-#include <glad\glad.h>
+#include <glad/glad.h>
 
 #include <vector>
 #include <cfloat>
@@ -13,7 +13,7 @@
 
 void initMaterial(tinyobj::material_t &material);
 
-// ´ú±íÒ»¸ömesh
+// ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½mesh
 class ModelComponent {
 private:
 	GLuint vaoID;
@@ -32,11 +32,11 @@ public:
 	tinyobj::material_t getMaterial() const;
 };
 
-// ÓÉ¶à¸ömesh¹¹³É
+// ï¿½É¶ï¿½ï¿½meshï¿½ï¿½ï¿½ï¿½
 class Model {
 private:
 	std::vector<ModelComponent> components;
-	std::vector<float> maxRanges;   //°üÎ§ºÐ
+	std::vector<float> maxRanges;   //ï¿½ï¿½Î§ï¿½ï¿½
 public:
 	Model(std::vector<ModelComponent>);
 	Model();

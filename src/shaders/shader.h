@@ -1,23 +1,21 @@
-#pragma once
 #ifndef SHADER_H
 #define SHADER_H
 
 #include <glad/glad.h>
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-//½«×ÅÉ«Æ÷µ¥¶À³éÏó³ÉÒ»¸öÀà
 class Shader
 {
 public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
 	{
-		//»ñÈ¡×ÅÉ«Æ÷µÄÔ´´úÂë
+		//ï¿½ï¿½È¡ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½Ô´ï¿½ï¿½ï¿½ï¿½
 		std::string vertexCode;
 		std::string fragmentCode;
 		std::string geometryCode;
@@ -63,7 +61,7 @@ public:
 		const char* vShaderCode = vertexCode.c_str();
 		const char * fShaderCode = fragmentCode.c_str();
 
-		// ¶Ô×ÅÉ«Æ÷´úÂë½øĞĞ±àÒë
+		// ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ±ï¿½ï¿½ï¿½
 		unsigned int vertex, fragment;
 		// vertex shader
 		vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -75,7 +73,7 @@ public:
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
 		glCompileShader(fragment);
 		checkCompileErrors(fragment, "FRAGMENT");
-		//Èç¹ûÓĞÊäÈëÕâ¸ö×ÅÉ«Æ÷²Å½øĞĞ±àÒë
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½Å½ï¿½ï¿½Ğ±ï¿½ï¿½ï¿½
 		unsigned int geometry;
 		if (geometryPath != nullptr)
 		{
@@ -88,7 +86,7 @@ public:
 
 		
 
-		//´´½¨³ÌĞò¶ÔÏó£¬½«×ÅÉ«Æ÷¸½¼ÓÉÏÈ¥£¬È»ºó½«³ÌĞòÁ´½Ó,¼¤»î£¬¾Í¿ÉÒÔ°Ñ×ÅÉ«Æ÷¶ÔÏóÉ¾µôÁË
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ó£¬½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¥ï¿½ï¿½È»ï¿½ó½«³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½î£¬ï¿½Í¿ï¿½ï¿½Ô°ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½
 		ID = glCreateProgram();
 		glAttachShader(ID, vertex);
 		glAttachShader(ID, fragment);

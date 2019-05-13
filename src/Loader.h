@@ -6,12 +6,12 @@
 #include "stb_image.h"
 #include "tiny_obj_loader.h"
 #include <cstring>
-#include<sys\stat.h>
+#include<sys/stat.h>
 #include <string>
 #include <vector>
 #include <map>
 #include <iostream>
-#include "glm\glm.hpp"
+#include "glm/glm.hpp"
 #include <glad/glad.h>
 
 #include "Model.h"
@@ -25,14 +25,14 @@ struct Image {
 	Image(unsigned char* data, int width, int height, int channels);
 	glm::vec3 getPixel(int x, int y);
 };
-//µ¥ÀýÀà
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 class Loader
 {
 private:
 	static Loader* loader;
 	Loader();
 
-	// ½«¼ÓÔØµÄÎÆÀíid¶¼´æ´¢ÔÚmapÀï
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½æ´¢ï¿½ï¿½mapï¿½ï¿½
 	std::map<std::string, unsigned int> loadedTextures;
 	GLuint loadTextureData(GLubyte *data, int x, int y, int n, GLenum textureUnit);
 	GLuint setupBuffer(unsigned int buffer, std::vector<float> values, int attributeIndex, int dataDimension);

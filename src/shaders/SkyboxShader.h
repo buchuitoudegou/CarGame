@@ -1,4 +1,3 @@
-#pragma once
 #ifndef SKYBOX_SHADER_H
 #define SKYBOX_SHADER_H
 
@@ -8,8 +7,8 @@
 #include <iostream>
 #include <fstream>
 
-#include "glm\glm.hpp"
-#include "glm\ext.hpp"
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
 #include <glad/glad.h>
 
 #include "shader.h"

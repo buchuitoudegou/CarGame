@@ -20,3 +20,5 @@ run:
 clean:
 	rm -rf $(bin)
 	rm -rf $(build)
+	mkdir $(bin)
+	mkdir $(build)

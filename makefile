@@ -7,7 +7,11 @@ target = $(bin)/main
 
 objects := $(build)/camera.o $(build)/loader.o $(build)/model.o $(build)/SkyboxRenderer.o \
 $(build)/shader.o $(build)/SkyboxShader.o $(build)/stb_image.o $(build)/tiny_obj_loader.o \
-$(build)/glad.o $(build)/main.o
+$(build)/glad.o $(build)/main.o $(build)/imgui.o $(build)/imgui_draw.o $(build)/imgui_impl_glfw.o \
+$(build)/imgui_impl_opengl3.o $(build)/imgui_widgets.o
+
+$(target) : $(objects)
+	g++ $(objects) $(CFLAGS) -lglfw -o $@
 
 # build glad
 $(build)/glad.o : $(src)/glad.c
@@ -17,12 +21,9 @@ $(build)/glad.o : $(src)/glad.c
 $(build)/camera.o : $(src)/camera/camera.cpp
 	g++ -c -o $@ $< $(CFLAGS)
 
-# # build imgui
-# $(build)/imgui.o : $(src)/imgui/imgui.cpp
-# 	g++ -c -o $@ $< $(CFLAGS)
-
-# $(build)/%.o : $(src)/imgui/%.cpp
-# 	g++ -c -o $@ $< $(CFLAGS)
+# build imgui
+$(build)/%.o : $(src)/imgui/%.cpp
+	g++ -c -o $@ $< $(CFLAGS)
 
 # build loader
 $(build)/loader.o : $(src)/loader/loader.cpp
@@ -54,8 +55,6 @@ $(build)/tiny_obj_loader.o : $(src)/tiny_obj_loader/tiny_obj_loader.cpp
 $(build)/main.o : $(src)/main.cpp
 	g++ -c -o $@ $< $(CFLAGS)
 
-$(target) : $(objects)
-	g++ $(objects) $(CFLAGS) -lglfw -o bin/main
 
 run:
 	./$(target)

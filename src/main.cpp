@@ -12,20 +12,20 @@
 
 
 
-// #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-// #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-// #include <GL/gl3w.h>    // Initialize with gl3wInit()
-// #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
-// #include <GL/glew.h>    // Initialize with glewInit()
-// #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-// #include <glad/glad.h>  // Initialize with gladLoadGL()
-// #else
-// #include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-// #endif
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
+#include <GL/gl3w.h>    // Initialize with gl3wInit()
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
+#include <GL/glew.h>    // Initialize with glewInit()
+#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
+#include <glad/glad.h>  // Initialize with gladLoadGL()
+#else
+#include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
+#endif
 
-// #include "imgui/imgui.h"
-// #include "imgui/imgui_impl_glfw.h"
-// #include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #include "shaders/shader.h"
 #include "renderers/SkyboxRenderer.h"
@@ -52,12 +52,10 @@ const float SKYBOX_SIZE = 200.0f;
 
 int main()
 {
-	//��ʼ������
 	GLFWwindow* window = openGLallInit();
 	if (window == NULL)
 		return -1;
 
-	//��պе�����
 	std::vector<std::string> skyboxTextures = {
 		"res/sky/right.jpg",
 		"res/sky/left.jpg",
@@ -67,7 +65,6 @@ int main()
 		"res/sky/back.jpg"
 	};
 
-	//������պ�
 	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 
 	Camera cam(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -84,7 +81,6 @@ int main()
 
 		skybox.render(cam.GetViewMatrix(), projection);
 
-		//��Ⱦ
 		int display_w, display_h;
 		glfwMakeContextCurrent(window);
 		glfwGetFramebufferSize(window, &display_w, &display_h);
@@ -149,10 +145,8 @@ GLFWwindow* openGLallInit()
 		return NULL;
 	}
 
-	//�趨�ӿ�
 	glViewport(0, 0, WIDTH, HEIGHT);
 
-	//ע��ص�����,��������Ļص�����
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_pos_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -190,30 +184,30 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-// void initImGui(GLFWwindow* window)
-// {
-// 	// Setup Dear ImGui context
-// 	IMGUI_CHECKVERSION();
-// 	ImGui::CreateContext();
-// 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+void initImGui(GLFWwindow* window)
+{
+	// Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-// 	// Setup Dear ImGui style
-// 	ImGui::StyleColorsDark();
-// 	const char* glsl_version = "#version 130";
-// 	// Setup Platform/Renderer bindings
-// 	ImGui_ImplGlfw_InitForOpenGL(window, true);
-// 	ImGui_ImplOpenGL3_Init(glsl_version);
-// }
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+	const char* glsl_version = "#version 130";
+	// Setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
+}
 
-// void cleanAll()
-// {
-// 	// Cleanup
-// 	ImGui_ImplOpenGL3_Shutdown();
-// 	ImGui_ImplGlfw_Shutdown();
-// 	ImGui::DestroyContext();
+void cleanAll()
+{
+	// Cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 
-// 	glfwTerminate();
-// }
+	glfwTerminate();
+}
 
 void renderLoop(GLFWwindow* window)
 {

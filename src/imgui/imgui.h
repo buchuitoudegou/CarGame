@@ -75,16 +75,16 @@ Index of this file:
 #define IM_UNUSED(_VAR)             ((void)_VAR)                                // Used to silence "unused variable warnings". Often useful as asserts may be stripped out from final builds.
 
 // Warnings
-#if defined(__clang__)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#if __has_warning("-Wzero-as-null-pointer-constant")
-#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
-#elif defined(__GNUC__) && __GNUC__ >= 8
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
-#endif
+// #if defined(__clang__)
+// #pragma clang diagnostic push
+// #pragma clang diagnostic ignored "-Wold-style-cast"
+// #if __has_warning("-Wzero-as-null-pointer-constant")
+// #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+// #endif
+// #elif defined(__GNUC__) && __GNUC__ >= 8
+// #pragma GCC diagnostic push
+// #pragma GCC diagnostic ignored "-Wclass-memaccess"
+// #endif
 
 //-----------------------------------------------------------------------------
 // Forward declarations and basic types

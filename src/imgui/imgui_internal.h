@@ -41,18 +41,18 @@ Index of this file:
 #pragma warning (disable: 4251) // class 'xxx' needs to have dll-interface to be used by clients of struct 'xxx' // when IMGUI_API is set to__declspec(dllexport)
 #endif
 
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"                // for stb_textedit.h
-#pragma clang diagnostic ignored "-Wmissing-prototypes"             // for stb_textedit.h
-#pragma clang diagnostic ignored "-Wold-style-cast"
-#if __has_warning("-Wzero-as-null-pointer-constant")
-#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
-#endif
-#if __has_warning("-Wdouble-promotion")
-#pragma clang diagnostic ignored "-Wdouble-promotion"
-#endif
-#endif
+// #ifdef __clang__
+// #pragma clang diagnostic push
+// #pragma clang diagnostic ignored "-Wunused-function"                // for stb_textedit.h
+// #pragma clang diagnostic ignored "-Wmissing-prototypes"             // for stb_textedit.h
+// #pragma clang diagnostic ignored "-Wold-style-cast"
+// #if __has_warning("-Wzero-as-null-pointer-constant")
+// #pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+// #endif
+// #if __has_warning("-Wdouble-promotion")
+// #pragma clang diagnostic ignored "-Wdouble-promotion"
+// #endif
+// #endif
 
 //-----------------------------------------------------------------------------
 // Forward declarations

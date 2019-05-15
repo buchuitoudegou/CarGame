@@ -9,8 +9,7 @@ objects := $(build)/camera.o $(build)/loader.o $(build)/model.o $(build)/SkyboxR
 $(build)/shader.o $(build)/SkyboxShader.o $(build)/stb_image.o $(build)/tiny_obj_loader.o \
 $(build)/glad.o $(build)/main.o $(build)/imgui.o $(build)/imgui_draw.o $(build)/imgui_impl_glfw.o \
 $(build)/imgui_impl_opengl3.o $(build)/imgui_widgets.o $(build)/mloader.o $(build)/mesh.o \
-$(build)/CarRenderer.o $(build)/car.o $(build)/RendererManager.o \
-$(build)/EntityShader.o
+$(build)/CarRenderer.o $(build)/car.o $(build)/RendererManager.o 
 
 $(target) : $(objects)
 	g++ $(objects) $(CFLAGS) -lglfw -lassimp -o $@
@@ -57,8 +56,6 @@ $(build)/shader.o : $(src)/shaders/shader.cpp $(src)/shaders/shader.h
 	g++ -c -o $@ $< $(CFLAGS)
 $(build)/SkyboxShader.o : $(src)/shaders/SkyboxShader.cpp
 	g++ -c -o $@ $< $(CFLAGS)
-$(build)/EntityShader.o : $(src)/shaders/EntityShader.cpp $(src)/shaders/EntityShader.h
-	g++ -c -o $@ $< $(CFLAGS)
 # -----------------------------
 
 # -----------------------------
@@ -72,10 +69,6 @@ $(build)/stb_image.o : $(src)/stb_image/stb_image.cpp
 # build renderers
 # build renderer manager
 $(build)/RendererManager.o : $(src)/renderers/RendererManager.cpp $(src)/renderers/RendererManager.h
-	g++ -c -o $@ $< $(CFLAGS)
-
-# build default renderer
-$(build)/DefaultRenderer.o : $(src)/renderers/DefaultRenderer.cpp $(src)/renderers/DefaultRenderer.h
 	g++ -c -o $@ $< $(CFLAGS)
 
 # build car renderer

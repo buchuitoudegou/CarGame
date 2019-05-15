@@ -5,7 +5,6 @@ SkyboxRenderer::SkyboxRenderer(std::vector<std::string> images, const float SIZE
 {
 	this->shader = SkyboxShader();
 
-	//∂•µ„æÿ’Û
 	std::vector<float> vertices = {
 		-SIZE, -SIZE, SIZE,
 		SIZE, -SIZE, SIZE,

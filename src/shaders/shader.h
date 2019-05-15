@@ -2,7 +2,8 @@
 #define SHADER_H
 
 #include <glad/glad.h>
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 #include <string>
 #include <fstream>
@@ -15,7 +16,6 @@ public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
 	{
-		//��ȡ��ɫ����Դ����
 		std::string vertexCode;
 		std::string fragmentCode;
 		std::string geometryCode;
@@ -180,7 +180,20 @@ public:
 	{
 		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
-
+	// template <typename T>
+  void loadLightUniform(std::string property, int index, glm::vec3 value);
+	void loadLightUniform(std::string property, int index, glm::vec4 value);
+	void loadLightUniform(std::string property, int index, float value);
+	// Uniform loading helpers
+	void loadUniformValue(GLuint uniformLocation, int value);
+	void loadUniformValue(GLuint uniformLocation, float value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec2 value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec3 value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec4 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat2 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat3 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat4 value);
+	void loadUniformValue(GLuint uniformLocation, float* value, int count);
 private:
 	// utility function for checking shader compilation/linking errors.
 	// ------------------------------------------------------------------------
@@ -207,5 +220,18 @@ private:
 			}
 		}
 	}
+
 };
+
+// template <typename T>
+// void Shader::loadLightUniform(std::string property, int index, const T& value){
+// 	// Lights are passed as an array of structs. However these are essentially bound and send individually.
+// 	// They have special uniform name syntax though. ie uniform_name[i].property -> lights[0].position
+// 	std::ostringstream ss;
+// 	ss << "lights[" << index << "]." << property;
+// 	std::string uniformName = ss.str();
+
+// 	GLuint uniform_location = glGetUniformLocation(ID, uniformName.c_str());
+// 	loadUniformValue(uniform_location, value);
+// }
 #endif

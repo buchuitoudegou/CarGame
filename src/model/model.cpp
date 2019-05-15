@@ -1,6 +1,5 @@
 #include "model.h"
 
-// �� tiny_obj_loader.h �︴�Ƴ�����
 void initMaterial(tinyobj::material_t &material) {
 	material.name = "";
 	material.ambient_texname = "";

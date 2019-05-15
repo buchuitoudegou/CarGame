@@ -13,7 +13,6 @@
 
 void initMaterial(tinyobj::material_t &material);
 
-// ����һ��mesh
 class ModelComponent {
 private:
 	GLuint vaoID;
@@ -32,11 +31,11 @@ public:
 	tinyobj::material_t getMaterial() const;
 };
 
-// �ɶ��mesh����
+
 class Model {
 private:
 	std::vector<ModelComponent> components;
-	std::vector<float> maxRanges;   //��Χ��
+	std::vector<float> maxRanges;
 public:
 	Model(std::vector<ModelComponent>);
 	Model();

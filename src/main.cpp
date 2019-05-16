@@ -141,7 +141,7 @@ int main() {
 	// Car car = Car("res/car/Lancia Delta/Material/lacia_delta_9.obj");
 	// Car car = Car("res/car/Lamborghini huracan/huracan in 2.8.obj");
 	// Car car = Car("res/Barrel/Barrel02.obj");
-	Car car = Car("res/car/Models 2/1.obj");
+	Car car = Car("res/car/newcar2/Avent.obj");
 	// Shader shader("./src/shaders/carshader.vs", "./src/shaders/carshader.fs");
 	// ModelLoader loader("res/car/Mech_F_432/Material/mech_f_432.obj");
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 800.0f);

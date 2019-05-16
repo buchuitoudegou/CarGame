@@ -13,7 +13,8 @@ struct Vertex {
 	glm::vec3 position;
 	glm::vec3 normal;
 	glm::vec2 texCoord;
-	glm::vec3 color;
+	glm::vec3 dcolor;
+	glm::vec3 scolor;
 };
 
 struct Texture {
@@ -27,7 +28,10 @@ public:
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 	vector<Texture> textures;
-	Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures);
+	Mesh(vector<Vertex> vertices, 
+		vector<unsigned int> indices, 
+		vector<Texture> textures,
+		glm::vec3 dcolor = glm::vec3(-1.0f));
 	void draw(Shader shader);
 private:
 	unsigned int VAO, VBO, EBO;

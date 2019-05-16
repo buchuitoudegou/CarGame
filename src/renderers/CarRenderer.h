@@ -4,7 +4,7 @@
 #include <string>
 #include "../headers.h"
 #include "../game_object/car.h"
-#include "../shaders/EntityShader.h"
+#include "../shaders/shader.h"
 #include "../game_object/light.h"
 #include "../skyloader/loader.h"
 

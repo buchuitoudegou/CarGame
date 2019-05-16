@@ -3,10 +3,17 @@
 
 using namespace std;
 
-Mesh::Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures) {
+Mesh::Mesh(vector<Vertex> vertices, 
+	vector<unsigned int> indices, 
+	vector<Texture> textures,
+	glm::vec3 dcolor) {
  	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
+	for (auto i = 0; i < vertices.size(); ++i) {
+		this->vertices[i].dcolor = glm::vec3(dcolor.x, dcolor.y, dcolor.z);
+		//this->vertices[i].scolor = glm::vec3(scolor.x, scolor.y, scolor.z);
+	}
 	setupMesh();
 }
 
@@ -33,8 +40,10 @@ void Mesh::setupMesh() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 	// color
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, dcolor));
 
+	// glEnableVertexAttribArray(3);
+	// glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, scolor));
 	glBindVertexArray(0);
 }
 
@@ -60,7 +69,6 @@ void Mesh::draw(Shader shader) {
 		// and finally bind the texture
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
-
 	// draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

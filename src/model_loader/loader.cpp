@@ -12,14 +12,13 @@ void ModelLoader::draw(Shader shader) {
 void ModelLoader::loadModel(string path)
 {
 	Assimp::Importer import;
+	
 	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		cout << "ERROR::ASSIMP::" << import.GetErrorString() << endl;
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
-
 	processNode(scene->mRootNode, scene);
 }
 
@@ -46,17 +45,12 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *scene) {
 		vector.y = mesh->mVertices[i].y;
 		vector.z = mesh->mVertices[i].z;
 		vertex.position = vector;
-		// normals
-		vector.x = mesh->mNormals[i].x;
-		vector.y = mesh->mNormals[i].y;
-		vector.z = mesh->mNormals[i].z;
-		vertex.normal = vector;
-		// color
-		if (mesh->mColors && mesh->mColors[0]) {
-			vector.x = mesh->mColors[0][i].r;
-			vector.y = mesh->mColors[0][i].g;
-			vector.z = mesh->mColors[0][i].b;
-			vertex.color = vector;
+		if (mesh->mNormals) {
+			// normals
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.normal = vector;
 		}
 		// texture coordinates
 		if (mesh->mTextureCoords[0]) {
@@ -80,6 +74,9 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *scene) {
 	}
 	// process materials
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	aiColor4D diffuseColor;
+	aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuseColor);
+	glm::vec3 dcolor = glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b);
 	// 1. diffuse maps
 	vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -94,7 +91,7 @@ Mesh ModelLoader::processMesh(aiMesh *mesh, const aiScene *scene) {
 	textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
 	// return a mesh object created from the extracted mesh data
-	return Mesh(vertices, indices, textures);
+	return Mesh(vertices, indices, textures, dcolor);
 }
 
 // checks all material textures of a given type and loads the textures if they're not loaded yet.

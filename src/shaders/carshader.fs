@@ -1,53 +1,65 @@
-// #version 330 core
-// out vec4 FragColor;
-
-
-// uniform vec3 lightPos;
-
-// uniform float ambient;
-// uniform float diffuse;
-// uniform float specular;
-
-
-// in vec2 TexCoords;
-// in vec3 FragPos;
-// in vec3 Normal;
-
-// uniform sampler2D texture_specular1;
-// uniform sampler2D texture_diffuse1;
-// uniform vec3 viewPos;
-
-// void main()
-// {    
-	
-// 	vec3 vambient = ambient*texture(texture_diffuse1, TexCoords).rgb;
-	
-// 	vec3 norm = normalize(Normal);
-// 	vec3 lightDir = normalize(lightPos - FragPos);
-// 	float diff = max(dot(norm, lightDir),0.0);
-// 	vec3 vdiffuse = diffuse * diff * texture(texture_diffuse1, TexCoords).rgb;
-// 	vec3 viewDir = normalize(viewPos - FragPos);
-//   vec3 reflectDir = reflect(-lightDir, norm);  
-//   float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-//   vec3 vspecular = specular * spec * texture(texture_specular1, TexCoords).rgb;  	
-// 	vec3 result = vambient + vdiffuse + vspecular;
-//   FragColor = vec4(result, 1.0);
-// }
 #version 330 core
 out vec4 FragColor;
 
-in vec3 color;
-in vec2 TexCoords;
 
+uniform vec3 lightPos;
+
+uniform float ambient;
+uniform float diffuse;
+uniform float specular;
+
+
+in vec2 TexCoords;
+in vec3 FragPos;
+in vec3 Normal;
+in vec3 dcolor;
+
+uniform sampler2D texture_specular1;
 uniform sampler2D texture_diffuse1;
+uniform vec3 viewPos;
 
 void main()
 {    
-  // if (texture_diffuse1)
-    FragColor = texture(texture_diffuse1, TexCoords);
-  // else
-    // FragColor = vec4(color, 1.0);
+	vec3 realcolor;
+  if (dcolor != vec3(-1.0, -1.0, -1.0))
+    realcolor = dcolor;
+  else
+    realcolor = texture(texture_diffuse1, TexCoords).rgb;
+  // vec3 sscolor;
+  // if (scolor != vec3(-1.0, -1.0, -1.0)) {
+  //   sscolor = scolor;
+  // } else if (dcolor != vec3(-1.0, -1.0, -1.0)) {
+  //   sscolor = dcolor;
+  // } else {
+  //   sscolor = texture(texture_specular1, TexCoords).rgb;
+  // }
+	vec3 vambient = ambient*realcolor;
+	vec3 norm = normalize(Normal);
+	vec3 lightDir = normalize(lightPos - FragPos);
+	float diff = max(dot(norm, lightDir),0.0);
+	vec3 vdiffuse = diffuse * diff * realcolor;
+	vec3 viewDir = normalize(viewPos - FragPos);
+  vec3 reflectDir = reflect(-lightDir, norm);  
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+  vec3 vspecular = specular * spec * realcolor;  	
+	vec3 result = vambient + vdiffuse + vspecular;
+  FragColor = vec4(result, 1.0);
 }
+// #version 330 core
+// out vec4 FragColor;
+
+// in vec3 color;
+// in vec2 TexCoords;
+
+// uniform sampler2D texture_diffuse1;
+
+// void main()
+// {    
+//   if (color == vec3(-1.0, -1.0, -1.0))
+//     FragColor = texture(texture_diffuse1, TexCoords);
+//   else
+//     FragColor = vec4(color, 1.0);
+// }
 // Uses interpolated position and normal values passed from vertex shader.
 
 // #version 330

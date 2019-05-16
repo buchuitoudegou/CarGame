@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "game_object/car.h"
 #include "camera/camera.h"
 #include "stb_image/stb_image.h"
 #include "glm/glm.hpp"
@@ -29,7 +30,7 @@
 
 #include "shaders/shader.h"
 #include "renderers/SkyboxRenderer.h"
-#include "renderers/CarRenderer.h"
+#include "renderers/entityRenderer.h"
 
 using namespace std;
 // void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -134,13 +135,9 @@ int main() {
 	// init renderer
 	RendererManager renderers;
 	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
-	CarRenderer carRenderer = CarRenderer();
+	EntityRenderer entityRenderer = EntityRenderer();
 
 	// init game object
-	// Car car = Car("res/car/Mech_F_432/Material/mech_f_432.obj");
-	// Car car = Car("res/car/Lancia Delta/Material/lacia_delta_9.obj");
-	// Car car = Car("res/car/Lamborghini huracan/huracan in 2.8.obj");
-	// Car car = Car("res/Barrel/Barrel02.obj");
 	Car car = Car("res/car/newcar2/Avent.obj");
 	// Shader shader("./src/shaders/carshader.vs", "./src/shaders/carshader.fs");
 	// ModelLoader loader("res/car/Mech_F_432/Material/mech_f_432.obj");
@@ -179,7 +176,7 @@ int main() {
 
 		// ----------------------------------
 		// render car
-		carRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
+		entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
 		move(curFrame - lastFrame);
 		lastFrame = curFrame;
 		glfwMakeContextCurrent(window);

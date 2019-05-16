@@ -9,7 +9,7 @@ objects := $(build)/camera.o $(build)/loader.o $(build)/model.o $(build)/SkyboxR
 $(build)/shader.o $(build)/SkyboxShader.o $(build)/stb_image.o $(build)/tiny_obj_loader.o \
 $(build)/glad.o $(build)/main.o $(build)/imgui.o $(build)/imgui_draw.o $(build)/imgui_impl_glfw.o \
 $(build)/imgui_impl_opengl3.o $(build)/imgui_widgets.o $(build)/mloader.o $(build)/mesh.o \
-$(build)/CarRenderer.o $(build)/car.o $(build)/RendererManager.o 
+$(build)/entityRenderer.o $(build)/car.o $(build)/RendererManager.o $(build)/entity.o
 
 $(target) : $(objects)
 	g++ $(objects) $(CFLAGS) -lglfw -lassimp -o $@
@@ -72,7 +72,7 @@ $(build)/RendererManager.o : $(src)/renderers/RendererManager.cpp $(src)/rendere
 	g++ -c -o $@ $< $(CFLAGS)
 
 # build car renderer
-$(build)/CarRenderer.o : $(src)/renderers/CarRenderer.cpp $(src)/renderers/CarRenderer.h
+$(build)/entityRenderer.o : $(src)/renderers/entityRenderer.cpp $(src)/renderers/entityRenderer.h
 	g++ -c -o $@ $< $(CFLAGS)
 
 # build sky renderer
@@ -82,6 +82,10 @@ $(build)/SkyboxRenderer.o : $(src)/renderers/SkyboxRenderer.cpp $(src)/renderers
 
 # -----------------------------
 # build game object
+# build entity obj
+$(build)/entity.o : $(src)/game_object/entity.cpp $(src)/game_object/entity.h
+	g++ -c -o $@ $< $(CFLAGS)
+
 # build car obj
 $(build)/car.o : $(src)/game_object/car.cpp $(src)/game_object/car.h
 	g++ -c -o $@ $< $(CFLAGS)

@@ -8,12 +8,12 @@
 #include <iostream>
 #include <fstream>
 
-#include "glm\glm.hpp"
-#include "glm\ext.hpp"
+#include "glm/glm.hpp"
+#include "glm/ext.hpp"
 #include <glad/glad.h>
 
-#include "SkyboxShader.h"
-#include "Loader.h"
+#include "../shaders/SkyboxShader.h"
+#include "../skyloader/loader.h"
 
 class SkyboxRenderer
 {

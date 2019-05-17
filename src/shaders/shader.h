@@ -1,23 +1,21 @@
-#pragma once
 #ifndef SHADER_H
 #define SHADER_H
 
 #include <glad/glad.h>
-#include "glm\glm.hpp"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
-//½«×ÅÉ«Æ÷µ¥¶À³éÏó³ÉÒ»¸öÀà
 class Shader
 {
 public:
 	unsigned int ID;
 	Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
 	{
-		//»ñÈ¡×ÅÉ«Æ÷µÄÔ´´úÂë
 		std::string vertexCode;
 		std::string fragmentCode;
 		std::string geometryCode;
@@ -63,7 +61,7 @@ public:
 		const char* vShaderCode = vertexCode.c_str();
 		const char * fShaderCode = fragmentCode.c_str();
 
-		// ¶Ô×ÅÉ«Æ÷´úÂë½øÐÐ±àÒë
+		// ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½
 		unsigned int vertex, fragment;
 		// vertex shader
 		vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -75,7 +73,7 @@ public:
 		glShaderSource(fragment, 1, &fShaderCode, NULL);
 		glCompileShader(fragment);
 		checkCompileErrors(fragment, "FRAGMENT");
-		//Èç¹ûÓÐÊäÈëÕâ¸ö×ÅÉ«Æ÷²Å½øÐÐ±àÒë
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½Å½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½
 		unsigned int geometry;
 		if (geometryPath != nullptr)
 		{
@@ -87,8 +85,6 @@ public:
 		}
 
 		
-
-		//´´½¨³ÌÐò¶ÔÏó£¬½«×ÅÉ«Æ÷¸½¼ÓÉÏÈ¥£¬È»ºó½«³ÌÐòÁ´½Ó,¼¤»î£¬¾Í¿ÉÒÔ°Ñ×ÅÉ«Æ÷¶ÔÏóÉ¾µôÁË
 		ID = glCreateProgram();
 		glAttachShader(ID, vertex);
 		glAttachShader(ID, fragment);
@@ -184,7 +180,20 @@ public:
 	{
 		glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 	}
-
+	// template <typename T>
+  void loadLightUniform(std::string property, int index, glm::vec3 value);
+	void loadLightUniform(std::string property, int index, glm::vec4 value);
+	void loadLightUniform(std::string property, int index, float value);
+	// Uniform loading helpers
+	void loadUniformValue(GLuint uniformLocation, int value);
+	void loadUniformValue(GLuint uniformLocation, float value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec2 value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec3 value);
+	void loadUniformValue(GLuint uniformLocation, glm::vec4 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat2 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat3 value);
+	void loadUniformValue(GLuint uniformLocation, glm::mat4 value);
+	void loadUniformValue(GLuint uniformLocation, float* value, int count);
 private:
 	// utility function for checking shader compilation/linking errors.
 	// ------------------------------------------------------------------------
@@ -211,5 +220,18 @@ private:
 			}
 		}
 	}
+
 };
+
+// template <typename T>
+// void Shader::loadLightUniform(std::string property, int index, const T& value){
+// 	// Lights are passed as an array of structs. However these are essentially bound and send individually.
+// 	// They have special uniform name syntax though. ie uniform_name[i].property -> lights[0].position
+// 	std::ostringstream ss;
+// 	ss << "lights[" << index << "]." << property;
+// 	std::string uniformName = ss.str();
+
+// 	GLuint uniform_location = glGetUniformLocation(ID, uniformName.c_str());
+// 	loadUniformValue(uniform_location, value);
+// }
 #endif

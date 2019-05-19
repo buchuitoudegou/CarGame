@@ -9,3 +9,6 @@ RendererManager::RendererManager() {
   headlight.coneAngle = 3.1415926/4;
   headlight.radius = 10.0f;
 }
+
+unsigned int RendererManager::depthMap = 0;
+

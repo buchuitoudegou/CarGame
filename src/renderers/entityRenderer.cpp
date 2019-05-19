@@ -17,6 +17,9 @@ void EntityRenderer::render(Entity& entity, Light* light, glm::mat4 view, glm::m
     shader->setFloat("ambient", 1.0f);
 		shader->setFloat("diffuse", 1.0f);
 		shader->setFloat("specular", 0.5f);
+    shader->setBool("useInColor", false);
+    glActiveTexture(GL_TEXTURE0 + 100);
+		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
     entity.loader->draw(*shader);
   }
 }

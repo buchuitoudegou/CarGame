@@ -13,6 +13,7 @@ public:
   RendererManager();
   //vector<DefaultRenderer*> manager;
   static Light headlight;
+  static unsigned int depthMap;
 };
 
 #endif

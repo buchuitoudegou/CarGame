@@ -39,6 +39,7 @@ using namespace std;
 // void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 // void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos);
 // void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	glm::vec3 lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
 float planeVertices[48] = {
 	// positions            // normals         // texcoords
 	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
@@ -51,7 +52,7 @@ float planeVertices[48] = {
 };
 unsigned int planeVAO;
 unsigned int depthMapFBO;
-int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+int SHADOW_WIDTH = 4000, SHADOW_HEIGHT = 4000;
 float xPos = 0.0f;
 float yPos = 0.0f;
 bool firstMouse = true;
@@ -161,8 +162,8 @@ void cleanAll();
 
 void renderLoop(GLFWwindow* window);
 
-float SCR_WIDTH = 800;
-float SCR_HEIGHT = 800;
+float SCR_WIDTH = 4000;
+float SCR_HEIGHT = 4000;
 const float SKYBOX_SIZE = 200.0f;
 
 
@@ -192,8 +193,10 @@ int main() {
 	initPlaneVAO();
 	initShadow();
 	Car car = Car("res/car/newcar2/Avent.obj");
+	ModelLoader loader = ModelLoader("res/car/newcar2/Avent.obj");
 	// plane shader and shadow shader
-	Shader shader("./src/shaders/carshader.vs", "./src/shaders/carshader.fs");
+	Shader shader("./src/shaders/shadow_mapping.vs", "./src/shaders/shadow_mapping.fs");
+	// Shader shader("./src/shaders/carshader.vs", "./src/shaders/carshader.fs");
 	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
 	shader.setInt("shadowMap", 100);
 	// ModelLoader loader("res/car/Mech_F_432/Material/mech_f_432.obj");
@@ -203,47 +206,47 @@ int main() {
 		// process config
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// int display_w, display_h;
-		// glfwMakeContextCurrent(window);
-		// glfwGetFramebufferSize(window, &display_w, &display_h);
-		// glViewport(0, 0, display_w, display_h);
-		
 		// 1. render depth of scene to texture (from light's perspective)
 		// --------------------------------------------------------------
 		glm::mat4 lightProjection, lightView;
 		glm::mat4 lightSpaceMatrix;
 		float near_plane = 1.0f, far_plane = 7.5f;
 		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(glm::vec3(RendererManager::headlight.position), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightView = glm::lookAt(lightPos, glm::vec3(0), glm::vec3(0, 1, 0));
+		// lightView = glm::lookAt(glm::vec3(RendererManager::headlight.position), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 		lightSpaceMatrix = lightProjection * lightView;
 		// render scene from light's point of view
 		simpleDepthShader.use();
 		simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		glm::mat4 model = glm::mat4(1.0f);
-		simpleDepthShader.setVec3("incolor", glm::vec3(1, 1, 1));
 		simpleDepthShader.setMat4("model", model);
-		glBindVertexArray(planeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		// glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		// entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		
+		glBindVertexArray(planeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		model = glm::translate(model, glm::vec3(0, -1, 0));
+		simpleDepthShader.setMat4("model", model);
+		car.loader->draw(simpleDepthShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// // reset viewport
-		// glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// ----------------------------------
 		// render plane
+		model = glm::mat4(1.0f);
 		shader.use();
 		shader.setBool("useInColor", true);
-		shader.setVec3("incolor", glm::vec3(1, 1, 1));
+		shader.setVec3("bcolor", glm::vec3(1, 1, 1));
 		shader.setMat4("model", model);
 		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", camera.getViewMat());
 		shader.setVec3("viewPos", camera.position);
-		shader.setVec3("lightPos", glm::vec3(RendererManager::headlight.position));
+		shader.setVec3("lightPos", lightPos);
+		// shader.setVec3("lightPos", glm::vec3(RendererManager::headlight.position));
 		shader.setFloat("ambient", 1.0f);
 		shader.setFloat("diffuse", 1.0f);
 		shader.setFloat("specular", 0.5f);
@@ -251,14 +254,20 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
 		glBindVertexArray(planeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		model = glm::translate(model, glm::vec3(0, 0.2, 0));
+		shader.setBool("useInColor", false);
+		shader.setMat4("model", model);
+		shader.setVec3("bcolor", glm::vec3(-1, -1, -1));
+		// loader.draw(shader);
 		// ----------------------------------
-		// render sky box
-		// skybox.render(camera.getViewMat(), projection);
 
 		// ----------------------------------
 		// render car
-		entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
+		// entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
+		car.loader->draw(shader);
 		move(curFrame - lastFrame);
+		// 		// render sky box
+		// skybox.render(camera.getViewMat(), projection);
 		lastFrame = curFrame;
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);

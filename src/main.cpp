@@ -103,8 +103,6 @@ void shadowMapping() {
 	lightSpaceMatrix = lightProjection * lightView;
 	simpleDepthShader.use();
 	simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-	glm::mat4 model = glm::mat4(1.0f);
-	simpleDepthShader.setMat4("model", model);
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);

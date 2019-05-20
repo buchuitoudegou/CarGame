@@ -39,7 +39,7 @@ using namespace std;
 // void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 // void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos);
 // void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-	glm::vec3 lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
+glm::vec3 lightPos = glm::vec3(-2.0f, 5.0f, -1.0f);
 float planeVertices[48] = {
 	// positions            // normals         // texcoords
 	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
@@ -212,7 +212,7 @@ int main() {
 		glm::mat4 lightSpaceMatrix;
 		float near_plane = 1.0f, far_plane = 7.5f;
 		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		lightView = glm::lookAt(lightPos, glm::vec3(0), glm::vec3(0, 1, 0));
+		lightView = glm::lookAt(RendererManager::headlight.position, glm::vec3(0), glm::vec3(0, 1, 0));
 		// lightView = glm::lookAt(glm::vec3(RendererManager::headlight.position), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 		lightSpaceMatrix = lightProjection * lightView;
 		// render scene from light's point of view
@@ -230,10 +230,11 @@ int main() {
 		simpleDepthShader.setMat4("model", model);
 		car.loader->draw(simpleDepthShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		// // reset viewport
+		// reset viewport
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// render sky box
+		skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render plane
 		model = glm::mat4(1.0f);
@@ -245,7 +246,7 @@ int main() {
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", camera.getViewMat());
 		shader.setVec3("viewPos", camera.position);
-		shader.setVec3("lightPos", lightPos);
+		shader.setVec3("lightPos", RendererManager::headlight.position);
 		// shader.setVec3("lightPos", glm::vec3(RendererManager::headlight.position));
 		shader.setFloat("ambient", 1.0f);
 		shader.setFloat("diffuse", 1.0f);
@@ -266,8 +267,6 @@ int main() {
 		// entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
 		car.loader->draw(shader);
 		move(curFrame - lastFrame);
-		// 		// render sky box
-		// skybox.render(camera.getViewMat(), projection);
 		lastFrame = curFrame;
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);

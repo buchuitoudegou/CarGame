@@ -16,8 +16,10 @@ public:
   static const string ENTITY_VERTEX_SHADER_PATH;
   static const string ENTITY_FRAGMENT_SHADER_PATH;
   EntityRenderer();
-  Shader* shader;
-  void render(Entity& entity, Light* light, glm::mat4 view, glm::mat4 projection);
+  void render(
+    Shader* shader,
+    Entity& entity, 
+    Light* light);
   ~EntityRenderer();
 };
 

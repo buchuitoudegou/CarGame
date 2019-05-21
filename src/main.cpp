@@ -1,45 +1,30 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <vector>
-#include <algorithm>
-
-#include "game_object/car.h"
-#include "camera/camera.h"
-#include "stb_image/stb_image.h"
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtc/type_ptr.hpp"
-#include "renderers/RendererManager.h"
-#include "./model_loader/loader.h"
-
-#define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
-#include <GL/gl3w.h>    // Initialize with gl3wInit()
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
-#include <GL/glew.h>    // Initialize with glewInit()
-#elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-#include <glad/glad.h>  // Initialize with gladLoadGL()
-#else
-#include IMGUI_IMPL_OPENGL_LOADER_CUSTOM
-#endif
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
-#include "shaders/shader.h"
-#include "renderers/SkyboxRenderer.h"
-#include "renderers/entityRenderer.h"
+#include "headers.h"
 
 using namespace std;
-// void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-// void processInput(GLFWwindow *window, Camera* cam);
-// void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-// void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-// void mouse_pos_callback(GLFWwindow* window, double xpos, double ypos);
-// void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+// -----------------------------
+// window params
+float SCR_WIDTH = 4000;
+float SCR_HEIGHT = 4000;
+const float SKYBOX_SIZE = 200.0f;
+// ------------------------------
+// plane params
+float planeVertices[48] = {
+	// positions            // normals         // texcoords
+	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+	-25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
+	-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
 
+	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
+	-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
+	25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+};
+unsigned int planeVAO;
+// -------------------------------
+// shadow params
+unsigned int depthMapFBO;
+float SHADOW_WIDTH = 4000, SHADOW_HEIGHT = 4000;
+// -------------------------------
+// control params
 float xPos = 0.0f;
 float yPos = 0.0f;
 bool firstMouse = true;
@@ -53,7 +38,99 @@ float scaleDir = 1.0f;
 float movementx = 0.0f;
 float moveDir = 1.0f;
 float rotation = 0.0f;
+// -------------------------------
+// camera
 Camera camera(glm::vec3(0.0f, 0.0f, 7.0f));
+// -------------------------------
+// game objs
+vector<Entity*> objs;
+// -------------------------------
+// renderer
+EntityRenderer entityRenderer;
+// ------------------------------
+// projection
+glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 800.0f);
+
+GLFWwindow* openGLallInit();
+void initImGui(GLFWwindow* window);
+
+void initPlaneVAO() {
+	unsigned int planeVBO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &planeVBO);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glBindVertexArray(0);
+}
+
+void drawPlane(Shader* shader) {
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0, -1, 0));
+	shader->setMat4("model", model);
+	shader->use();
+	glBindVertexArray(planeVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void renderScene(Shader* shader, vector<Entity*> objs, EntityRenderer* renderer) {
+	drawPlane(shader);
+	for (auto i = 0; i < objs.size(); ++i) {
+		shader->setVec3("bcolor", glm::vec3(-1, -1, -1));
+		renderer->render(shader, *objs[i], &RendererManager::headlight);
+	}
+}
+
+void shadowMapping() {
+	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 1.0f, far_plane = 7.5f;
+	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	lightView = glm::lookAt(
+		glm::vec3(
+			RendererManager::headlight.position.x,
+			RendererManager::headlight.position.y,
+			RendererManager::headlight.position.z), 
+		glm::vec3(0), 
+		glm::vec3(0, 1, 0));
+	lightSpaceMatrix = lightProjection * lightView;
+	simpleDepthShader.use();
+	simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	renderScene(&simpleDepthShader, objs, &entityRenderer);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void initShadow() {
+	// ---------------------------------------------
+	// frame depth map
+	glGenFramebuffers(1, &depthMapFBO);
+	glGenTextures(1, &RendererManager::depthMap);
+	glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, RendererManager::depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -104,17 +181,6 @@ void move(GLfloat dtime) {
 	}
 }
 
-GLFWwindow* openGLallInit();
-void initImGui(GLFWwindow* window);
-void cleanAll();
-
-void renderLoop(GLFWwindow* window);
-
-float SCR_WIDTH = 800;
-float SCR_HEIGHT = 800;
-const float SKYBOX_SIZE = 200.0f;
-
-
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
 	GLFWwindow* window = openGLallInit();
@@ -133,50 +199,62 @@ int main() {
 		"res/sky/back.jpg"
 	};
 	// init renderer
-	RendererManager renderers;
+	RendererManager::init();
 	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
-	EntityRenderer entityRenderer = EntityRenderer();
-
 	// init game object
+	initPlaneVAO();
+	initShadow();
 	Car car = Car("res/car/newcar2/Avent.obj");
-	// Shader shader("./src/shaders/carshader.vs", "./src/shaders/carshader.fs");
-	// ModelLoader loader("res/car/Mech_F_432/Material/mech_f_432.obj");
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 800.0f);
+	objs.push_back(&car);
+	// plane shader
+	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
+	Shader shader("./src/shaders/shadow_mapping.vs", "./src/shaders/shadow_mapping.fs");
+	shader.setInt("shadowMap", 100);
+	
 	while (!glfwWindowShouldClose(window)) {
 		curFrame = glfwGetTime();
 		// process config
+		float near_plane = 1.0f, far_plane = 7.5f;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		int display_w, display_h;
-		glfwMakeContextCurrent(window);
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		// shader.use();
-		// glm::mat4 projection = glm::perspective(glm::radians(camera.zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-		// glm::mat4 view = camera.getViewMat();
-		// shader.setMat4("projection", projection);
-		// shader.setMat4("view", view);
-		// glm::mat4 model = glm::mat4(1.0f);
-		// model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
-		// model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-		// model = glm::scale(model, glm::vec3(scale, scale, scale));
-		// model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 1.0f, 0.0f));
-		// model = glm::translate(model, glm::vec3(movementx + 2, 0, 0));
-		// shader.setMat4("model", model);
-		// shader.setFloat("ambient", 1.0f);
-		// shader.setFloat("diffuse", 1.0f);
-		// shader.setFloat("specular", 0.5f);
-		// shader.setVec3("viewPos", camera.position);
-		// shader.setVec3("lightPos", glm::vec3(0, 0, 3));
-		// move(curFrame - lastFrame);
-		// loader.draw(shader);
+		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		glm::mat4 lightView = glm::lookAt(
+			glm::vec3(RendererManager::headlight.position), 
+			glm::vec3(0), 
+			glm::vec3(0, 1, 0));
+		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		// ----------------------------------
+		// render shadow
+		shadowMapping();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		// ----------------------------------
 		// render sky box
-		skybox.render(camera.getViewMat(), projection);
-
+		// skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
-		// render car
-		entityRenderer.render(car, &RendererManager::headlight, camera.getViewMat(), projection);
+		// render scene
+		glm::mat4 model = glm::mat4(1.0f);
+		shader.use();
+		shader.setBool("useInColor", true);
+		shader.setVec3("bcolor", glm::vec3(1, 1, 1));
+		shader.setMat4("model", model);
+		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+		shader.setMat4("projection", projection);
+		shader.setMat4("view", camera.getViewMat());
+		shader.setVec3("viewPos", camera.position);
+		shader.setVec3("lightPos", glm::vec3(
+			RendererManager::headlight.position.x,
+			RendererManager::headlight.position.y,
+			RendererManager::headlight.position.z));
+		shader.setFloat("ambient", 1.0f);
+		shader.setFloat("diffuse", 1.0f);
+		shader.setFloat("specular", 0.5f);
+		glActiveTexture(GL_TEXTURE0 + 100);
+		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		renderScene(&shader, objs, &entityRenderer);
+
 		move(curFrame - lastFrame);
 		lastFrame = curFrame;
 		glfwMakeContextCurrent(window);
@@ -186,15 +264,13 @@ int main() {
 	return 0;
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	SCR_WIDTH = width;
 	SCR_HEIGHT = height;
 	glViewport(0, 0, width, height);
 }
 
-void initImGui(GLFWwindow* window)
-{
+void initImGui(GLFWwindow* window) {
 	// Setup Dear ImGui context
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -206,22 +282,6 @@ void initImGui(GLFWwindow* window)
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
-}
-
-void cleanAll()
-{
-	// Cleanup
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	glfwTerminate();
-}
-
-void renderLoop(GLFWwindow* window) {
-	glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
-	glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-	glm::vec3 objectColor(1.0f, 0.5f, 0.31f);
 }
 
 
@@ -254,7 +314,3 @@ GLFWwindow* openGLallInit() {
 	glfwSetKeyCallback(window, keyCallback);
 	return window;
 }
-
-
-
-

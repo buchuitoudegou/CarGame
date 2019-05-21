@@ -9,11 +9,15 @@ out vec2 TexCoords;
 out vec3 Normal;
 out vec3 FragPos;
 out vec3 dcolor;
+out vec4 FragPosLightSpace;
 // out vec3 scolor;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 incolor;
+uniform mat4 lightSpaceMatrix;
+uniform bool useInColor;
 
 void main()
 {
@@ -21,7 +25,12 @@ void main()
 	Normal=aNormal;
 	FragPos=vec3(model*vec4(aPos,1.0));
     gl_Position = projection*view*vec4(FragPos,1.0);
-    dcolor = acolor;
+    if (!useInColor) {
+        dcolor = acolor;
+    } else {
+        dcolor = incolor;
+    }
+    FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
     // scolor = bcolor;
 }
 // #version 330

@@ -10,9 +10,11 @@ using namespace std;
 
 class RendererManager {
 public:
-  RendererManager();
+  // RendererManager();
   //vector<DefaultRenderer*> manager;
   static Light headlight;
+  static unsigned int depthMap;
+  static void init();
 };
 
 #endif

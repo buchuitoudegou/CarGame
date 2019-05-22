@@ -40,7 +40,7 @@
 
 #ifndef TINY_OBJ_LOADER_H
 #define TINY_OBJ_LOADER_H
-
+#define _CRT_SECURE_NO_WARNINGS  
 #include <string>
 #include <vector>
 #include <map>

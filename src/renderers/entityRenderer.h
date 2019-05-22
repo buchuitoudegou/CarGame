@@ -6,7 +6,7 @@
 #include "../game_object/entity.h"
 #include "../shaders/shader.h"
 #include "../game_object/light.h"
-#include "../skyloader/loader.h"
+#include "../skyloader/skyLoader.h"
 #include "./RendererManager.h"
 
 using namespace std;

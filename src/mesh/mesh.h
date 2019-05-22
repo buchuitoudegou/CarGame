@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include <glm/glm.hpp>
+#include <glm\glm.hpp>
 #include <string>
 #include <vector>
 #include "../shaders/shader.h"

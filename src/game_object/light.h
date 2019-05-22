@@ -6,6 +6,7 @@
 
 #include <glad/glad.h>
 #include <glm/ext.hpp>
+const double PI = 3.14;
 
 // Lights are a simple struct holding all of the relevant information.
 struct Light {
@@ -15,7 +16,7 @@ struct Light {
       diffuse(glm::vec3(0.0f)),
       ambient(glm::vec3(0.0f)),
       radius(0.0f),
-      coneAngle((float)M_PI),
+      coneAngle((float)PI),
       coneDirection(glm::vec3(0.0f)){
   }
 

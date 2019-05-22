@@ -5,18 +5,51 @@ using namespace std;
 // window params
 float SCR_WIDTH = 4000;
 float SCR_HEIGHT = 4000;
-const float SKYBOX_SIZE = 200.0f;
+const float SKYBOX_SIZE = 500.0f;
 // ------------------------------
 // plane params
-float planeVertices[48] = {
-	// positions            // normals         // texcoords
-	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-	-25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,   0.0f,  0.0f,
-	-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-
-	25.0f, -0.5f,  25.0f,  0.0f, 1.0f, 0.0f,  25.0f,  0.0f,
-	-25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,   0.0f, 25.0f,
-	25.0f, -0.5f, -25.0f,  0.0f, 1.0f, 0.0f,  25.0f, 25.0f
+float planeVertices[] = {
+			-25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f, // Bottom-left
+			25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f, // top-right
+			25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f, // bottom-right         
+			25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f,  // top-right
+			-25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f,  // bottom-left
+			-25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f,// top-left
+			
+			-25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f, // bottom-left
+			25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // bottom-right
+			25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // top-right
+			25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f, // top-right
+			-25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // top-left
+			-25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // bottom-left
+			
+			-25.f, 0.5f, 25.f, -1.0f, 0.0f, 0.0f, // top-right
+			-25.f, 0.5f, -25.f, -1.0f, 0.0f, 0.0f, // top-left
+			-25.f, -0.5f, -25.f, -1.0f, 0.0f, 0.0f,  // bottom-left
+			-25.f, -0.5f, -25.f, -1.0f, 0.0f, 0.0f, // bottom-left
+			-25.f, -0.5f, 25.f, -1.0f, 0.0f, 0.0f,  // bottom-right
+			-25.f, 0.5f, 25.f, -1.0f, 0.0f, 0.0f, // top-right
+			
+			25.f, 0.5f, 25.f, 1.0f, 0.0f, 0.0f, // top-left
+			25.f, -0.5f, -25.f, 1.0f, 0.0f, 0.0f, // bottom-right
+			25.f, 0.5f, -25.f, 1.0f, 0.0f, 0.0f, // top-right         
+			25.f, -0.5f, -25.f, 1.0f, 0.0f, 0.0f,  // bottom-right
+			25.f, 0.5f, 25.f, 1.0f, 0.0f, 0.0f,  // top-left
+			25.f, -0.5f, 25.f, 1.0f, 0.0f, 0.0f, // bottom-left     
+			
+			-25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-right
+			25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-left
+			25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f,// bottom-left
+			25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f, // bottom-left
+			-25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f, // bottom-right
+			-25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-right
+			
+			-25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f,// top-left
+			25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f, // bottom-right
+			25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f, // top-right     
+			25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f, // bottom-right
+			-25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f,// top-left
+			-25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f // bottom-left 
 };
 unsigned int planeVAO;
 // -------------------------------
@@ -40,7 +73,7 @@ float moveDir = 1.0f;
 float rotation = 0.0f;
 // -------------------------------
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 7.0f));
+Camera camera(glm::vec3(0.0f, 300.f, 7.0f));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
@@ -62,11 +95,11 @@ void initPlaneVAO() {
 	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	//glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(6 * sizeof(float)));
 	glBindVertexArray(0);
 }
 
@@ -74,9 +107,9 @@ void drawPlane(Shader* shader) {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0, -1, 0));
 	shader->setMat4("model", model);
-	shader->use();
 	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }
 
 void renderScene(Shader* shader, vector<Entity*> objs, EntityRenderer* renderer) {
@@ -87,20 +120,8 @@ void renderScene(Shader* shader, vector<Entity*> objs, EntityRenderer* renderer)
 	}
 }
 
-void shadowMapping() {
-	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
-	glm::mat4 lightProjection, lightView;
-	glm::mat4 lightSpaceMatrix;
-	float near_plane = 1.0f, far_plane = 7.5f;
-	lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-	lightView = glm::lookAt(
-		glm::vec3(
-			RendererManager::headlight.position.x,
-			RendererManager::headlight.position.y,
-			RendererManager::headlight.position.z), 
-		glm::vec3(0), 
-		glm::vec3(0, 1, 0));
-	lightSpaceMatrix = lightProjection * lightView;
+void shadowMapping(Shader& simpleDepthShader, glm::mat4 lightSpaceMatrix) {
+	//Shader simpleDepthShader("shaders/shadow_depth.vs", "shaders/shadow_depth.fs");
 	simpleDepthShader.use();
 	simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -189,7 +210,7 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	if (window == NULL)
 		return -1;
-	glEnable(GL_DEPTH_TEST);
+	
 	std::vector<std::string> skyboxTextures = {
 		"res/sky/right.jpg",
 		"res/sky/left.jpg",
@@ -205,18 +226,25 @@ int main() {
 	initPlaneVAO();
 	initShadow();
 	Car car = Car("res/car/newcar2/Avent.obj");
+
+	Entity terrain = Entity("res/terrain/Terrain.obj");
+	terrain.position = glm::vec3(625, -20, 0);
+
 	objs.push_back(&car);
+	//objs.push_back(&terrain);
 	// plane shader
-	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
-	Shader shader("./src/shaders/shadow_mapping.vs", "./src/shaders/shadow_mapping.fs");
-	shader.setInt("shadowMap", 100);
+	Shader simpleDepthShader("shaders/shadow_depth.vs", "shaders/shadow_depth.fs");
+	Shader shader("shaders/shadow_mapping.vs", "shaders/shadow_mapping.fs");
+	shader.use();
+	shader.setInt("shadowMap", 30);
 	
 	while (!glfwWindowShouldClose(window)) {
 		curFrame = glfwGetTime();
 		// process config
-		float near_plane = 1.0f, far_plane = 7.5f;
+		float near_plane = 1.0f, far_plane = 77.5f;
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 		glm::mat4 lightView = glm::lookAt(
 			glm::vec3(RendererManager::headlight.position), 
@@ -225,14 +253,11 @@ int main() {
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 		// ----------------------------------
 		// render shadow
-		shadowMapping();
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		shadowMapping(simpleDepthShader, lightSpaceMatrix);
+		
 		// ----------------------------------
 		// render sky box
-		// skybox.render(camera.getViewMat(), projection);
+		skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render scene
 		glm::mat4 model = glm::mat4(1.0f);
@@ -250,8 +275,8 @@ int main() {
 			RendererManager::headlight.position.z));
 		shader.setFloat("ambient", 1.0f);
 		shader.setFloat("diffuse", 1.0f);
-		shader.setFloat("specular", 0.5f);
-		glActiveTexture(GL_TEXTURE0 + 100);
+		shader.setFloat("specular", 0.45f);
+		glActiveTexture(GL_TEXTURE30);
 		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
 		renderScene(&shader, objs, &entityRenderer);
 

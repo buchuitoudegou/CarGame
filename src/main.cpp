@@ -227,14 +227,14 @@ int main() {
 	initShadow();
 	Car car = Car("res/car/newcar2/Avent.obj");
 
-	Entity terrain = Entity("res/terrain/Terrain.obj");
-	terrain.position = glm::vec3(625, -20, 0);
+	// Entity terrain = Entity("./res/terrain/Terrain.obj");
+	// terrain.position = glm::vec3(625, -20, 0);
 
 	objs.push_back(&car);
 	//objs.push_back(&terrain);
 	// plane shader
-	Shader simpleDepthShader("shaders/shadow_depth.vs", "shaders/shadow_depth.fs");
-	Shader shader("shaders/shadow_mapping.vs", "shaders/shadow_mapping.fs");
+	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
+	Shader shader("./src/shaders/shadow_mapping.vs", "./src/shaders/shadow_mapping.fs");
 	shader.use();
 	shader.setInt("shadowMap", 30);
 	

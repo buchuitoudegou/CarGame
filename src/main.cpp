@@ -6,52 +6,6 @@ using namespace std;
 float SCR_WIDTH = 4000;
 float SCR_HEIGHT = 4000;
 const float SKYBOX_SIZE = 500.0f;
-// ------------------------------
-// plane params
-float planeVertices[] = {
-			-25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f, // Bottom-left
-			25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f, // top-right
-			25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f, // bottom-right         
-			25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f,  // top-right
-			-25.f, -0.5f, -25.f, 0.0f, 0.0f, -1.0f,  // bottom-left
-			-25.f, 0.5f, -25.f, 0.0f, 0.0f, -1.0f,// top-left
-			
-			-25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f, // bottom-left
-			25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // bottom-right
-			25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // top-right
-			25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f, // top-right
-			-25.f, 0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // top-left
-			-25.f, -0.5f, 25.f, 0.0f, 0.0f, 1.0f,  // bottom-left
-			
-			-25.f, 0.5f, 25.f, -1.0f, 0.0f, 0.0f, // top-right
-			-25.f, 0.5f, -25.f, -1.0f, 0.0f, 0.0f, // top-left
-			-25.f, -0.5f, -25.f, -1.0f, 0.0f, 0.0f,  // bottom-left
-			-25.f, -0.5f, -25.f, -1.0f, 0.0f, 0.0f, // bottom-left
-			-25.f, -0.5f, 25.f, -1.0f, 0.0f, 0.0f,  // bottom-right
-			-25.f, 0.5f, 25.f, -1.0f, 0.0f, 0.0f, // top-right
-			
-			25.f, 0.5f, 25.f, 1.0f, 0.0f, 0.0f, // top-left
-			25.f, -0.5f, -25.f, 1.0f, 0.0f, 0.0f, // bottom-right
-			25.f, 0.5f, -25.f, 1.0f, 0.0f, 0.0f, // top-right         
-			25.f, -0.5f, -25.f, 1.0f, 0.0f, 0.0f,  // bottom-right
-			25.f, 0.5f, 25.f, 1.0f, 0.0f, 0.0f,  // top-left
-			25.f, -0.5f, 25.f, 1.0f, 0.0f, 0.0f, // bottom-left     
-			
-			-25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-right
-			25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-left
-			25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f,// bottom-left
-			25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f, // bottom-left
-			-25.f, -0.5f, 25.f, 0.0f, -1.0f, 0.0f, // bottom-right
-			-25.f, -0.5f, -25.f, 0.0f, -1.0f, 0.0f, // top-right
-			
-			-25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f,// top-left
-			25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f, // bottom-right
-			25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f, // top-right     
-			25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f, // bottom-right
-			-25.f, 0.5f, -25.f, 0.0f, 1.0f, 0.0f,// top-left
-			-25.f, 0.5f, 25.f, 0.0f, 1.0f, 0.0f // bottom-left 
-};
-unsigned int planeVAO;
 // -------------------------------
 // shadow params
 unsigned int depthMapFBO;
@@ -73,50 +27,122 @@ float moveDir = 1.0f;
 float rotation = 0.0f;
 // -------------------------------
 // camera
-Camera camera(glm::vec3(0.0f, 300.f, 7.0f));
+Camera camera(glm::vec3(0.0f, 30.f, 7.0f));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
-// -------------------------------
-// renderer
-EntityRenderer entityRenderer;
 // ------------------------------
 // projection
+glm::mat4 lightSpaceMatrix;
 glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 800.0f);
 
 GLFWwindow* openGLallInit();
 void initImGui(GLFWwindow* window);
+void renderImgui(bool menu);
+void renderScene(Shader* shader);
+void shadowMapping(Shader& simpleDepthShader, glm::mat4 lightSpaceMatrix);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void initShadow();
+void mouseCallback(GLFWwindow*, double xpos, double ypos);
+void move(GLfloat dtime);
 
-void initPlaneVAO() {
-	unsigned int planeVBO;
-	glGenVertexArrays(1, &planeVAO);
-	glGenBuffers(1, &planeVBO);
-	glBindVertexArray(planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, planeVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	//glEnableVertexAttribArray(2);
-	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(6 * sizeof(float)));
-	glBindVertexArray(0);
+int main() {
+	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
+	camera.yaw = 538.750;
+	camera.pitch = -8.250;
+	camera.position.x = 26.474;
+	camera.position.y = 13.408;
+	camera.position.z = -2.695;
+	camera.updateCamera();
+	GLFWwindow* window = openGLallInit();
+	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetCursorPosCallback(window, mouseCallback);
+	// glfwSetKeyCallback(window, keyCallback);
+	initImGui(window);
+	if (window == NULL)
+		return -1;
+	
+	// std::vector<std::string> skyboxTextures = {
+	// 	"res/sky/right.jpg",
+	// 	"res/sky/left.jpg",
+	// 	"res/sky/top.jpg",
+	// 	"res/sky/down.jpg",
+	// 	"res/sky/front.jpg",
+	// 	"res/sky/back.jpg"
+	// };
+	// // init renderer
+	RendererManager::init();
+	// SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
+	// init shadow
+	initShadow();
+	float near_plane = 1.0f, far_plane = 77.5f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(
+		glm::vec3(RendererManager::headlight.position), 
+		glm::vec3(0), 
+		glm::vec3(0, 1, 0));
+	lightSpaceMatrix = lightProjection * lightView;
+	// ----------------------------------
+	// init game object
+	Car car = Car("res/car/newcar2/Avent.obj");
+	Plane plane;
+	objs.push_back(&plane);
+	objs.push_back(&car);
+	// ----------------------------------
+	// shader
+	Shader shadowShader("./src/shaders/glsl/shadow_depth.vs", "./src/shaders/glsl/shadow_depth.fs");
+	Shader entityShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
+	entityShader.setInt("shadowMap", 100);
+
+	while (!glfwWindowShouldClose(window)) {
+		curFrame = glfwGetTime();
+		// ----------------------------------
+		// process config
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		// ----------------------------------
+		// render shadow
+		shadowMapping(shadowShader, lightSpaceMatrix);
+		// ----------------------------------
+		// render sky box
+		// skybox.render(camera.getViewMat(), projection);
+		// ----------------------------------
+		// render scene
+		glActiveTexture(GL_TEXTURE0 + 100);
+		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		renderScene(&entityShader);
+		// ----------------------------------
+		// render imgui
+		renderImgui(true);
+
+		move(curFrame - lastFrame);
+		lastFrame = curFrame;
+
+		glfwMakeContextCurrent(window);
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+	return 0;
 }
 
-void drawPlane(Shader* shader) {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0, -1, 0));
-	shader->setMat4("model", model);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
-}
-
-void renderScene(Shader* shader, vector<Entity*> objs, EntityRenderer* renderer) {
-	drawPlane(shader);
-	for (auto i = 0; i < objs.size(); ++i) {
-		shader->setVec3("bcolor", glm::vec3(-1, -1, -1));
-		renderer->render(shader, *objs[i], &RendererManager::headlight);
+void renderScene(Shader* shader) {
+	for (int i = 0; i < objs.size(); ++i) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, objs[i]->position);
+		EntityRenderer::render(
+			shader,
+			objs[i],
+			objs[i]->useVertColor,
+			projection,
+			camera.getViewMat(),
+			model,
+			lightSpaceMatrix,
+			RendererManager::headlight.position,
+			camera.position,
+			objs[i]->vertColor
+		);
 	}
 }
 
@@ -127,7 +153,7 @@ void shadowMapping(Shader& simpleDepthShader, glm::mat4 lightSpaceMatrix) {
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	renderScene(&simpleDepthShader, objs, &entityRenderer);
+	renderScene(&simpleDepthShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -202,92 +228,7 @@ void move(GLfloat dtime) {
 	}
 }
 
-int main() {
-	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
-	GLFWwindow* window = openGLallInit();
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSetCursorPosCallback(window, mouseCallback);
-	glfwSetKeyCallback(window, keyCallback);
-	if (window == NULL)
-		return -1;
-	
-	std::vector<std::string> skyboxTextures = {
-		"res/sky/right.jpg",
-		"res/sky/left.jpg",
-		"res/sky/top.jpg",
-		"res/sky/down.jpg",
-		"res/sky/front.jpg",
-		"res/sky/back.jpg"
-	};
-	// init renderer
-	RendererManager::init();
-	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
-	// init game object
-	initPlaneVAO();
-	initShadow();
-	Car car = Car("res/car/newcar2/Avent.obj");
 
-	// Entity terrain = Entity("./res/terrain/Terrain.obj");
-	// terrain.position = glm::vec3(625, -20, 0);
-
-	objs.push_back(&car);
-	//objs.push_back(&terrain);
-	// plane shader
-	Shader simpleDepthShader("./src/shaders/shadow_depth.vs", "./src/shaders/shadow_depth.fs");
-	Shader shader("./src/shaders/shadow_mapping.vs", "./src/shaders/shadow_mapping.fs");
-	shader.use();
-	shader.setInt("shadowMap", 30);
-	
-	while (!glfwWindowShouldClose(window)) {
-		curFrame = glfwGetTime();
-		// process config
-		float near_plane = 1.0f, far_plane = 77.5f;
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		glm::mat4 lightView = glm::lookAt(
-			glm::vec3(RendererManager::headlight.position), 
-			glm::vec3(0), 
-			glm::vec3(0, 1, 0));
-		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-		// ----------------------------------
-		// render shadow
-		shadowMapping(simpleDepthShader, lightSpaceMatrix);
-		
-		// ----------------------------------
-		// render sky box
-		skybox.render(camera.getViewMat(), projection);
-		// ----------------------------------
-		// render scene
-		glm::mat4 model = glm::mat4(1.0f);
-		shader.use();
-		shader.setBool("useInColor", true);
-		shader.setVec3("bcolor", glm::vec3(1, 1, 1));
-		shader.setMat4("model", model);
-		shader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-		shader.setMat4("projection", projection);
-		shader.setMat4("view", camera.getViewMat());
-		shader.setVec3("viewPos", camera.position);
-		shader.setVec3("lightPos", glm::vec3(
-			RendererManager::headlight.position.x,
-			RendererManager::headlight.position.y,
-			RendererManager::headlight.position.z));
-		shader.setFloat("ambient", 1.0f);
-		shader.setFloat("diffuse", 1.0f);
-		shader.setFloat("specular", 0.45f);
-		glActiveTexture(GL_TEXTURE30);
-		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
-		renderScene(&shader, objs, &entityRenderer);
-
-		move(curFrame - lastFrame);
-		lastFrame = curFrame;
-		glfwMakeContextCurrent(window);
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-	return 0;
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	SCR_WIDTH = width;
@@ -303,7 +244,7 @@ void initImGui(GLFWwindow* window) {
 
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	const char* glsl_version = "#version 130";
+	const char* glsl_version = "#version 330";
 	// Setup Platform/Renderer bindings
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
@@ -335,7 +276,23 @@ GLFWwindow* openGLallInit() {
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetCursorPosCallback(window, mouseCallback);
-	glfwSetKeyCallback(window, keyCallback);
+	// glfwSetCursorPosCallback(window, mouseCallback);
+	// glfwSetKeyCallback(window, keyCallback);
 	return window;
+}
+
+
+void renderImgui(bool menu) {
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::Begin("Menu", &menu, ImGuiWindowFlags_MenuBar);
+	ImGui::SliderFloat("yaw", &camera.yaw, -360, 360);
+	ImGui::SliderFloat("pitch", &camera.pitch, -89, 89);
+	ImGui::SliderFloat("c x", &camera.position.x, -10, 100);
+	ImGui::SliderFloat("c y", &camera.position.y, -10, 100);
+	ImGui::SliderFloat("c z", &camera.position.z, -10, 100);
+	ImGui::End();
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

@@ -9,7 +9,8 @@ objects := $(build)/camera.o $(build)/loader.o $(build)/model.o $(build)/SkyboxR
 $(build)/shader.o $(build)/SkyboxShader.o $(build)/stb_image.o $(build)/tiny_obj_loader.o \
 $(build)/glad.o $(build)/main.o $(build)/imgui.o $(build)/imgui_draw.o $(build)/imgui_impl_glfw.o \
 $(build)/imgui_impl_opengl3.o $(build)/imgui_widgets.o $(build)/mloader.o $(build)/mesh.o \
-$(build)/entityRenderer.o $(build)/car.o $(build)/RendererManager.o $(build)/entity.o
+$(build)/entityRenderer.o $(build)/car.o $(build)/RendererManager.o $(build)/entity.o \
+$(build)/plane.o
 
 $(target) : $(objects)
 	g++ $(objects) $(CFLAGS) -lglfw -lassimp -o $@
@@ -88,6 +89,10 @@ $(build)/entity.o : $(src)/game_object/entity.cpp $(src)/game_object/entity.h
 
 # build car obj
 $(build)/car.o : $(src)/game_object/car.cpp $(src)/game_object/car.h
+	g++ -c -o $@ $< $(CFLAGS)
+
+# build plane obj
+$(build)/plane.o : $(src)/game_object/plane.cpp $(src)/game_object/plane.h
 	g++ -c -o $@ $< $(CFLAGS)
 # -----------------------------
 

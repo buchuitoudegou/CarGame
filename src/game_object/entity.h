@@ -4,18 +4,16 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <string>
-#include "../model_loader/loader.h"
+#include "../shaders/shader.h"
+
 using namespace std;
 
 class Entity {
 public:
-  Entity(const string& path);
-  ~Entity();
-  string modelPath;
-  glm::vec3 position;
-  glm::mat4 getModelMatrix() const;
-  ModelLoader* loader = nullptr;
-  bool isLoad = false;
+  glm::vec3 position = glm::vec3(0, 0, 0);
+  bool useVertColor = false;
+  glm::vec3 vertColor = glm::vec3(0, 0, 0);
+  virtual void draw(Shader* shader = nullptr) const = 0;
 };
 
 #endif

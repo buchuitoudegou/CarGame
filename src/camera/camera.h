@@ -33,7 +33,6 @@ public:
 	void keyboardHandler(Movement, GLfloat dtime);
 	void mouseMoveHandler(GLfloat, GLfloat, GLboolean constrainPitch = true);
 	void mouseScrollHandler(GLfloat y);
-private:
 	void updateCamera();
 };
 

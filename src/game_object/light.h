@@ -11,13 +11,13 @@ const double PI = 3.14;
 // Lights are a simple struct holding all of the relevant information.
 struct Light {
   Light(): 
-      position(glm::vec4(0.0f)),
-      specular(glm::vec3(0.0f)),
-      diffuse(glm::vec3(0.0f)),
-      ambient(glm::vec3(0.0f)),
-      radius(0.0f),
-      coneAngle((float)PI),
-      coneDirection(glm::vec3(0.0f)){
+    position(glm::vec4(0.0f)),
+    specular(glm::vec3(0.0f)),
+    diffuse(glm::vec3(0.0f)),
+    ambient(glm::vec3(0.0f)),
+    radius(0.0f),
+    coneAngle((float)PI),
+    coneDirection(glm::vec3(0.0f)){
   }
 
   glm::vec4 position; // Position of the camera in world coordinates. w value of 0 indicates directional light, 1 indicates positional/point light

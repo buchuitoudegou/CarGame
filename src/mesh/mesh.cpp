@@ -10,9 +10,16 @@ Mesh::Mesh(vector<Vertex> vertices,
  	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
-	for (auto i = 0; i < vertices.size(); ++i) {
-		this->vertices[i].dcolor = glm::vec3(dcolor.x, dcolor.y, dcolor.z);
-		//this->vertices[i].scolor = glm::vec3(scolor.x, scolor.y, scolor.z);
+	if (textures.size() == 0) {
+		for (auto i = 0; i < vertices.size(); ++i) {
+			this->vertices[i].dcolor = glm::vec3(dcolor.x, dcolor.y, dcolor.z);
+			//this->vertices[i].scolor = glm::vec3(scolor.x, scolor.y, scolor.z);
+		}
+	} else {
+		for (auto i = 0; i < vertices.size(); ++i) {
+			this->vertices[i].dcolor = glm::vec3(-1, -1, -1);
+			//this->vertices[i].scolor = glm::vec3(-1, -1, -1);
+		}
 	}
 	setupMesh();
 }

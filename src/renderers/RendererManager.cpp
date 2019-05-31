@@ -3,7 +3,7 @@
 Light RendererManager::headlight = Light();
 unsigned int RendererManager::depthMap = 0;
 void RendererManager::init() {
-  headlight.position = glm::vec4(-4.0f, 5.0f, -4.0f, 1.0f);
+  headlight.position = glm::vec4(16, 20, 16, 1);
   headlight.specular = glm::vec3(0.8f, 0.8f, 0.4f);
   headlight.diffuse = glm::vec3(0.8f, 0.8f, 0.4f);
   headlight.coneDirection = glm::vec3(0.0f, -1.0f, 0.0f);

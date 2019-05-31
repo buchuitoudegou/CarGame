@@ -13,14 +13,17 @@ using namespace std;
 
 class EntityRenderer {
 public:
-  static const string ENTITY_VERTEX_SHADER_PATH;
-  static const string ENTITY_FRAGMENT_SHADER_PATH;
-  EntityRenderer();
-  void render(
+  static void render(
     Shader* shader,
-    Entity& entity, 
-    Light* light);
-  ~EntityRenderer();
+    Entity* entity, 
+    bool useVertColor,
+    glm::mat4 projection,
+    glm::mat4 view,
+    glm::mat4 model,
+    glm::mat4 lightSpaceMatrix,
+    glm::vec3 lightPos,
+    glm::vec3 viewPos,
+    glm::vec3 vertColor);
 };
 
 #endif

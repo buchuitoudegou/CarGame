@@ -4,12 +4,15 @@
 #include <vector>
 #include <algorithm>
 
-#include "game_object/car.h"
-#include "camera/camera.h"
-#include "stb_image/stb_image.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "game_object/car.h"
+#include "game_object/plane.h"
+
+#include "camera/camera.h"
+#include "stb_image/stb_image.h"
 #include "renderers/RendererManager.h"
 #include "./model_loader/loader.h"
 

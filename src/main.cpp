@@ -31,6 +31,7 @@ Camera camera(glm::vec3(0.0f, 30.f, 7.0f));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
+vector<Shader*> shaders;
 // ------------------------------
 // projection
 glm::mat4 lightSpaceMatrix;
@@ -39,7 +40,7 @@ glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / 
 GLFWwindow* openGLallInit();
 void initImGui(GLFWwindow* window);
 void renderImgui(bool menu);
-void renderScene(Shader* shader);
+void renderScene(Shader* shader = nullptr);
 void shadowMapping(Shader& simpleDepthShader, glm::mat4 lightSpaceMatrix);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -56,9 +57,9 @@ int main() {
 	camera.position.z = -2.695;
 	camera.updateCamera();
 	GLFWwindow* window = openGLallInit();
-	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	// glfwSetCursorPosCallback(window, mouseCallback);
-	// glfwSetKeyCallback(window, keyCallback);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetKeyCallback(window, keyCallback);
 	initImGui(window);
 	if (window == NULL)
 		return -1;
@@ -92,9 +93,13 @@ int main() {
 	// ----------------------------------
 	// shader
 	Shader shadowShader("./src/shaders/glsl/shadow_depth.vs", "./src/shaders/glsl/shadow_depth.fs");
-	Shader entityShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
-	entityShader.setInt("shadowMap", 100);
-
+	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
+	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
+	carShader.setInt("shadowMap", 1);
+	planeShader.setInt("texture_diffuse_0", 0);
+	planeShader.setInt("shadowMap", 1);
+	shaders.push_back(&planeShader);
+	shaders.push_back(&carShader);
 	while (!glfwWindowShouldClose(window)) {
 		curFrame = glfwGetTime();
 		// ----------------------------------
@@ -110,9 +115,9 @@ int main() {
 		// skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render scene
-		glActiveTexture(GL_TEXTURE0 + 100);
-		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
-		renderScene(&entityShader);
+		// glActiveTexture(GL_TEXTURE0);
+		// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		renderScene();
 		// ----------------------------------
 		// render imgui
 		renderImgui(true);
@@ -129,10 +134,11 @@ int main() {
 
 void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
+		auto currentShader = shader == nullptr ? shaders[i] : shader;
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, objs[i]->position);
 		EntityRenderer::render(
-			shader,
+			currentShader,
 			objs[i],
 			objs[i]->useVertColor,
 			projection,

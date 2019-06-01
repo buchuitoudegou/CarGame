@@ -22,7 +22,7 @@ void EntityRenderer::render(
   shader->setVec3("vertColor", vertColor);
   shader->setFloat("ambient", 1.0f);
   shader->setFloat("diffuse", 1.0f);
-  shader->setFloat("specular", 0.45f);
+  shader->setFloat("specular", 1.0f);
   entity->draw(shader);
   shader->unuse();
 } 

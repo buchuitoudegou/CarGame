@@ -46,7 +46,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void initShadow();
 void mouseCallback(GLFWwindow*, double xpos, double ypos);
-void move(GLfloat dtime);
+void move(GLfloat dtime, Car& car);
 
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
@@ -57,7 +57,7 @@ int main() {
 	camera.position.z = -2.695;
 	camera.updateCamera();
 	GLFWwindow* window = openGLallInit();
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetKeyCallback(window, keyCallback);
 	initImGui(window);
@@ -100,6 +100,8 @@ int main() {
 	planeShader.setInt("shadowMap", 1);
 	shaders.push_back(&planeShader);
 	shaders.push_back(&carShader);
+
+	float dist = glm::distance2(camera.position, car.position);
 	while (!glfwWindowShouldClose(window)) {
 		curFrame = glfwGetTime();
 		// ----------------------------------
@@ -122,9 +124,8 @@ int main() {
 		// render imgui
 		renderImgui(true);
 
-		move(curFrame - lastFrame);
+		move(curFrame - lastFrame, car);
 		lastFrame = curFrame;
-
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -135,8 +136,7 @@ int main() {
 void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		auto currentShader = shader == nullptr ? shaders[i] : shader;
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, objs[i]->position);
+		auto model = objs[i]->getModelMat();
 		EntityRenderer::render(
 			currentShader,
 			objs[i],
@@ -214,23 +214,25 @@ void mouseCallback(GLFWwindow*, double xpos, double ypos) {
 	}
 	float xoffset = xpos - xPos;
 	float yoffset = yPos - ypos;
-	camera.mouseMoveHandler(-xoffset, -yoffset);
+	// camera.mouseMoveHandler(-xoffset, -yoffset);
 	xPos = xpos;
 	yPos = ypos;
 }
 
-void move(GLfloat dtime) {
+void move(GLfloat dtime, Car& car) {
 	if (keys[GLFW_KEY_W]) {
-		camera.keyboardHandler(FORWARD, dtime);
+		car.move(dtime);
 	}
 	if (keys[GLFW_KEY_S]) {
-		camera.keyboardHandler(BACKWARD, dtime);
+		// camera.keyboardHandler(BACKWARD, dtime);
 	}
 	if (keys[GLFW_KEY_A]) {
-		camera.keyboardHandler(LEFT, dtime);
+		car.rotate(Car::turnAngle);
+		// camera.keyboardHandler(LEFT, dtime);
 	}
 	if (keys[GLFW_KEY_D]) {
-		camera.keyboardHandler(RIGHT, dtime);
+		car.rotate(-Car::turnAngle);
+		// camera.keyboardHandler(RIGHT, dtime);
 	}
 }
 

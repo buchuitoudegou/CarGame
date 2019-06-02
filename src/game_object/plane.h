@@ -21,6 +21,7 @@ public:
   void initPlaneVAO();
   Plane();
   void draw(Shader* shader = nullptr) const;
+  glm::mat4 getModelMat() const;
   void initTexture();
 };
 

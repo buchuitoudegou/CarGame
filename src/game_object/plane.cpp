@@ -51,6 +51,12 @@ void Plane::initTexture() {
 	}
 }
 
+glm::mat4 Plane::getModelMat() const {
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, this->position);
+	return model;
+}
+
 Plane::Plane() {
   initPlaneVAO();
 	initTexture();

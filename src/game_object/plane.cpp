@@ -18,8 +18,8 @@ void Plane::initPlaneVAO() {
 
 void Plane::draw(Shader* shader) const {
   shader->use();
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
   glBindVertexArray(planeVAO);
@@ -55,6 +55,6 @@ Plane::Plane() {
   initPlaneVAO();
 	initTexture();
 	this->useVertColor = true;
-	// this->vertColor = glm::vec3(-1, -1, -1);
-	this->vertColor = glm::vec3(1, 1, 1);
+	this->vertColor = glm::vec3(-1, -1, -1);
+	// this->vertColor = glm::vec3(1, 1, 1);
 }

@@ -236,21 +236,9 @@ void move(GLfloat dtime, Car& car) {
 	}
 	if (keys[GLFW_KEY_A]) {
 		car.rotate(Car::turnAngle);
-		
-		//camera.rotateWithCar(Car::turnAngle);
-		// camera.keyboardHandler(LEFT, dtime);
 	}
 	if (keys[GLFW_KEY_D]) {
 		car.rotate(-Car::turnAngle);
-		//glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
-		//camera.position = car.position + relativePosition;
-		//camera.yaw -= car.angle - preAngle;
-		//preAngle = car.angle;
-		//camera.updateCamera();
-		//camera.yaw += car.angle - preAngle;
-		//preAngle = car.angle;
-		//camera.rotateWithCar(-Car::turnAngle);
-		// camera.keyboardHandler(RIGHT, dtime);
 	}
 }
 

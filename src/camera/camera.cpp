@@ -38,7 +38,6 @@ void Camera::mouseMoveHandler(GLfloat x, GLfloat y, GLboolean constrainPitch) {
 	
 	yaw += x;
 	pitch += y;
-	cout << glm::radians(yaw) << endl;
 	//cout << y << " " <<  pitch << endl;
 	if (constrainPitch) {
 		if (pitch > 89.0f)

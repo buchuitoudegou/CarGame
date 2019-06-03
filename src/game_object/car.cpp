@@ -3,8 +3,6 @@
 const float Car::turnAngle = 0.5f;
 
 void Car::move(const float t) {
-  glm::vec3 rot = glm::vec3(-cos(glm::radians(angle)), 0, sin(glm::radians(angle)));
-  direction = rot;
   originAngle = angle;
   position += speed * t * direction;
 }
@@ -32,6 +30,8 @@ void Car::rotate(const float offset) {
   if (abs(angle - originAngle) <= 22.5 || abs(angle + offset - originAngle) <= 22.5) {
     angle += offset;
   }
+  glm::vec3 rot = glm::vec3(-cos(glm::radians(angle)), 0, sin(glm::radians(angle)));
+  direction = rot;
 }
 
 glm::mat4 Car::getModelMat() const {

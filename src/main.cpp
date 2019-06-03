@@ -97,7 +97,7 @@ int main() {
 	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
 	carShader.setInt("shadowMap", 1);
 	planeShader.setInt("texture_diffuse_0", 0);
-	planeShader.setInt("shadowMap", 1);
+	planeShader.setInt("shadowMap", 3);
 	shaders.push_back(&planeShader);
 	shaders.push_back(&carShader);
 

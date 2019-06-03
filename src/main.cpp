@@ -93,9 +93,9 @@ int main() {
 	objs.push_back(&car);
 	// ----------------------------------
 	// shader
-	Shader shadowShader("shaders/glsl/shadow_depth.vs", "shaders/glsl/shadow_depth.fs");
-	Shader carShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");
-	Shader planeShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");	
+	Shader shadowShader("./src/shaders/glsl/shadow_depth.vs", "./src/shaders/glsl/shadow_depth.fs");
+	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
+	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
 	carShader.setInt("shadowMap", 1);
 	planeShader.setInt("texture_diffuse_0", 0);
 	planeShader.setInt("shadowMap", 1);

@@ -27,7 +27,10 @@ float moveDir = 1.0f;
 float rotation = 0.0f;
 // -------------------------------
 // camera
-Camera camera(glm::vec3(0.0f, 30.f, 7.0f));
+float preAngle = 0;
+float relativeDirection = 10;
+float relativeHeight = 3;
+Camera camera(glm::vec3(relativeDirection, -0.5 + relativeHeight, 0));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
@@ -50,11 +53,9 @@ void move(GLfloat dtime, Car& car);
 
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
-	camera.yaw = 538.750;
-	camera.pitch = -8.250;
-	camera.position.x = 26.474;
-	camera.position.y = 13.408;
-	camera.position.z = -2.695;
+	camera.yaw = 190;
+	camera.pitch = 5.250;
+	
 	camera.updateCamera();
 	GLFWwindow* window = openGLallInit();
 	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -214,25 +215,30 @@ void mouseCallback(GLFWwindow*, double xpos, double ypos) {
 	}
 	float xoffset = xpos - xPos;
 	float yoffset = yPos - ypos;
-	// camera.mouseMoveHandler(-xoffset, -yoffset);
+	//camera.mouseMoveHandler(-xoffset, -yoffset);
 	xPos = xpos;
 	yPos = ypos;
 }
 
+
 void move(GLfloat dtime, Car& car) {
 	if (keys[GLFW_KEY_W]) {
 		car.move(dtime);
+		glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
+		camera.position = car.position + relativePosition;
+		camera.yaw -= car.angle - preAngle;
+		preAngle = car.angle;
+		camera.updateCamera();
+		//camera.moveWithCar(dtime);
 	}
 	if (keys[GLFW_KEY_S]) {
 		// camera.keyboardHandler(BACKWARD, dtime);
 	}
 	if (keys[GLFW_KEY_A]) {
 		car.rotate(Car::turnAngle);
-		// camera.keyboardHandler(LEFT, dtime);
 	}
 	if (keys[GLFW_KEY_D]) {
 		car.rotate(-Car::turnAngle);
-		// camera.keyboardHandler(RIGHT, dtime);
 	}
 }
 

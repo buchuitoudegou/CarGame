@@ -7,8 +7,53 @@ void Car::move(const float t) {
   position += speed * t * direction;
 }
 
+void Car::speedup(const float t) {
+	if (speed < abs(this->maxSpeed))
+	{
+		if (speed >= 0)
+		{
+			speed += (a - fa) * t;
+		}
+		else
+		{
+			speed += (a + fa) * t;
+		}
+	}
+}
+
+void Car::speeddown(const float t) {
+	if (speed < abs(this->maxSpeed))
+	{
+		if (speed < 0)
+		{
+			speed += (-a + fa) * t;
+		}
+		else
+		{
+			speed += (-a - fa) * t;
+		}
+	}
+}
+
+void Car::friction(const float t)
+{
+	if (speed > 0)
+	{
+		speed -= fa * t;
+		speed = speed < 0 ? 0 : speed;
+	}
+	else if(speed < 0)
+	{
+		speed += fa * t;
+		speed = speed < 0 ? 0 : speed;
+	}
+}
+
 Car::Car(const string& path) {
-  speed = 9.0f;
+  speed = 0.f;
+  a = 0.6f;
+  fa = 0.3f;
+  maxSpeed = 9.f;
   direction = glm::vec3(-1, 0, 0);
   angle = 0.0;
   originAngle = 0.0f;

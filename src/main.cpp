@@ -223,17 +223,28 @@ void mouseCallback(GLFWwindow*, double xpos, double ypos) {
 
 void move(GLfloat dtime, Car& car) {
 	if (keys[GLFW_KEY_W]) {
+		car.speedup(dtime);
+	}
+	else if (keys[GLFW_KEY_S]) {
+		car.speeddown(dtime);
+	}
+	else {
+		car.friction(dtime);
+	}
+	if (car.speed != 0)
+	{
 		car.move(dtime);
 		glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
 		camera.position = car.position + relativePosition;
 		camera.yaw -= car.angle - preAngle;
 		preAngle = car.angle;
 		camera.updateCamera();
-		//camera.moveWithCar(dtime);
 	}
-	if (keys[GLFW_KEY_S]) {
-		// camera.keyboardHandler(BACKWARD, dtime);
-	}
+	
+
+	//cout << car.speed << endl;
+
+	
 	if (keys[GLFW_KEY_A]) {
 		car.rotate(Car::turnAngle);
 	}

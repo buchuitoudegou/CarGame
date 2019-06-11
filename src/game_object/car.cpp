@@ -82,6 +82,6 @@ void Car::rotate(const float offset) {
 glm::mat4 Car::getModelMat() const {
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, position);
-  model = glm::rotate(model, glm::radians(originAngle), glm::vec3(0, 1, 0));
-  return model;
+  model = glm::rotate(model, glm::radians(originAngle + 90), glm::vec3(0, 1, 0));
+	return model;
 }

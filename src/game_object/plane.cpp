@@ -20,8 +20,6 @@ void Plane::draw(Shader* shader) const {
   shader->use();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
   glBindVertexArray(planeVAO);
   glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);

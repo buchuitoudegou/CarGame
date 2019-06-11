@@ -77,6 +77,7 @@ int main() {
 	RendererManager::init();
 	// SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
+	Plane plane;
 	initShadow();
 	float near_plane = 1.0f, far_plane = 77.5f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -87,8 +88,9 @@ int main() {
 	lightSpaceMatrix = lightProjection * lightView;
 	// ----------------------------------
 	// init game object
-	Car car = Car("res/car/newcar2/Avent.obj");
-	Plane plane;
+	// Car car = Car("res/car/newcar2/Avent.obj");
+	Car car = Car("res/car/Car-Model/Car.obj");
+	
 	objs.push_back(&plane);
 	objs.push_back(&car);
 	// ----------------------------------
@@ -97,8 +99,8 @@ int main() {
 	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
 	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
 	carShader.setInt("shadowMap", 1);
-	planeShader.setInt("texture_diffuse_0", 0);
-	planeShader.setInt("shadowMap", 3);
+	planeShader.setInt("texture_diffuse_0", 100);
+	planeShader.setInt("shadowMap", 1);
 	shaders.push_back(&planeShader);
 	shaders.push_back(&carShader);
 
@@ -138,6 +140,10 @@ void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		auto currentShader = shader == nullptr ? shaders[i] : shader;
 		auto model = objs[i]->getModelMat();
+		if (shader == nullptr) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		}
 		EntityRenderer::render(
 			currentShader,
 			objs[i],

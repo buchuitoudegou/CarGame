@@ -38,7 +38,7 @@ vector<Shader*> shaders;
 // ------------------------------
 // projection
 glm::mat4 lightSpaceMatrix;
-glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 800.0f);
+glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 1.0f, 10000.0f);
 
 GLFWwindow* openGLallInit();
 void initImGui(GLFWwindow* window);
@@ -50,6 +50,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void initShadow();
 void mouseCallback(GLFWwindow*, double xpos, double ypos);
 void move(GLfloat dtime, Car& car);
+
+float deltaTime;
 
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
@@ -65,20 +67,20 @@ int main() {
 	if (window == NULL)
 		return -1;
 	
-	// std::vector<std::string> skyboxTextures = {
-	// 	"res/sky/right.jpg",
-	// 	"res/sky/left.jpg",
-	// 	"res/sky/top.jpg",
-	// 	"res/sky/down.jpg",
-	// 	"res/sky/front.jpg",
-	// 	"res/sky/back.jpg"
-	// };
+	 std::vector<std::string> skyboxTextures = {
+	 	"res/sky/sky_rt.jpg",
+	 	"res/sky/sky_lf.jpg",
+	 	"res/sky/sky_up.jpg",
+	 	"res/sky/sky_dn.jpg",
+	 	"res/sky/sky_bk.jpg",
+	 	"res/sky/sky_ft.jpg"
+	 };
 	// // init renderer
 	RendererManager::init();
-	// SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
+	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
 	initShadow();
-	float near_plane = 1.0f, far_plane = 77.5f;
+	float near_plane = 1.0f, far_plane = 1277.5f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	glm::mat4 lightView = glm::lookAt(
 		glm::vec3(RendererManager::headlight.position), 
@@ -87,22 +89,31 @@ int main() {
 	lightSpaceMatrix = lightProjection * lightView;
 	// ----------------------------------
 	// init game object
+	City city = City("res/ApocalypticCity/Apocalyptic City.obj");
 	Car car = Car("res/car/newcar2/Avent.obj");
-	Plane plane;
-	objs.push_back(&plane);
+	
+
+	/*Plane plane;
+	objs.push_back(&plane);*/
+	objs.push_back(&city);
 	objs.push_back(&car);
+	
 	// ----------------------------------
 	// shader
-	Shader shadowShader("./src/shaders/glsl/shadow_depth.vs", "./src/shaders/glsl/shadow_depth.fs");
-	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
-	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
+	Shader shadowShader("shaders/glsl/shadow_depth.vs", "shaders/glsl/shadow_depth.fs");
+	Shader carShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");
+	Shader cityShader("shaders/glsl/1.model_loading.vs", "shaders/glsl/1.model_loading.fs");
+	/*Shader planeShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");	*/
 	carShader.setInt("shadowMap", 1);
-	planeShader.setInt("texture_diffuse_0", 0);
+	cityShader.setInt("shadowMap", 1);
+	/*planeShader.setInt("texture_diffuse_0", 0);
 	planeShader.setInt("shadowMap", 1);
-	shaders.push_back(&planeShader);
+	shaders.push_back(&planeShader);*/
+	shaders.push_back(&cityShader);
 	shaders.push_back(&carShader);
+	
 
-	float dist = glm::distance2(camera.position, car.position);
+	//float dist = glm::distance2(camera.position, car.position);
 	while (!glfwWindowShouldClose(window)) {
 		curFrame = glfwGetTime();
 		// ----------------------------------
@@ -115,7 +126,7 @@ int main() {
 		shadowMapping(shadowShader, lightSpaceMatrix);
 		// ----------------------------------
 		// render sky box
-		// skybox.render(camera.getViewMat(), projection);
+		skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render scene
 		// glActiveTexture(GL_TEXTURE0);
@@ -126,6 +137,7 @@ int main() {
 		renderImgui(true);
 
 		move(curFrame - lastFrame, car);
+		deltaTime = curFrame - lastFrame;
 		lastFrame = curFrame;
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);
@@ -204,6 +216,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 		else if (action == GLFW_RELEASE)
 			keys[key] = false;
 	}
+
+	
 }
 
 

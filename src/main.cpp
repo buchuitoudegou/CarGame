@@ -79,6 +79,8 @@ int main() {
 	RendererManager::init();
 	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
+
+  //Plane plane;
 	initShadow();
 	float near_plane = 1.0f, far_plane = 1277.5f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
@@ -90,8 +92,8 @@ int main() {
 	// ----------------------------------
 	// init game object
 	City city = City("res/ApocalypticCity/Apocalyptic City.obj");
-	Car car = Car("res/car/newcar2/Avent.obj");
-	
+	//Car car = Car("res/car/newcar2/Avent.obj");
+	Car car = Car("res/car/Car-Model/Car.obj");
 
 	/*Plane plane;
 	objs.push_back(&plane);*/
@@ -123,7 +125,7 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		// ----------------------------------
 		// render shadow
-		shadowMapping(shadowShader, lightSpaceMatrix);
+		// shadowMapping(shadowShader, lightSpaceMatrix);
 		// ----------------------------------
 		// render sky box
 		skybox.render(camera.getViewMat(), projection);
@@ -150,6 +152,10 @@ void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		auto currentShader = shader == nullptr ? shaders[i] : shader;
 		auto model = objs[i]->getModelMat();
+		if (shader == nullptr) {
+			// glActiveTexture(GL_TEXTURE0);
+			// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		}
 		EntityRenderer::render(
 			currentShader,
 			objs[i],

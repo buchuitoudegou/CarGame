@@ -28,7 +28,7 @@ void Plane::draw(Shader* shader) const {
 void Plane::initTexture() {
 	glGenTextures(1, &texture);
 	int width, height, nrComponents;
-	unsigned char *data = stbi_load("./res/terrain/grass.png", &width, &height, &nrComponents, 0);
+	unsigned char *data = stbi_load("res/terrain/grass.png", &width, &height, &nrComponents, 0);
 	if (data) {
 		GLenum format;
 		if (nrComponents == 1)

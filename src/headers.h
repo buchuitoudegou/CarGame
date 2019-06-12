@@ -11,6 +11,7 @@
 
 #include "game_object/car.h"
 #include "game_object/plane.h"
+#include "game_object/City.h"
 
 #include "camera/camera.h"
 #include "stb_image/stb_image.h"

@@ -78,7 +78,7 @@ int main() {
 	// SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
 	Plane plane;
-	initShadow();
+	// initShadow();
 	float near_plane = 1.0f, far_plane = 77.5f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	glm::mat4 lightView = glm::lookAt(
@@ -99,7 +99,7 @@ int main() {
 	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
 	Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");	
 	carShader.setInt("shadowMap", 1);
-	planeShader.setInt("texture_diffuse_0", 100);
+	planeShader.setInt("texture_diffuse_0", 0);
 	planeShader.setInt("shadowMap", 1);
 	shaders.push_back(&planeShader);
 	shaders.push_back(&carShader);
@@ -114,7 +114,7 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		// ----------------------------------
 		// render shadow
-		shadowMapping(shadowShader, lightSpaceMatrix);
+		// shadowMapping(shadowShader, lightSpaceMatrix);
 		// ----------------------------------
 		// render sky box
 		// skybox.render(camera.getViewMat(), projection);
@@ -141,8 +141,8 @@ void renderScene(Shader* shader) {
 		auto currentShader = shader == nullptr ? shaders[i] : shader;
 		auto model = objs[i]->getModelMat();
 		if (shader == nullptr) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+			// glActiveTexture(GL_TEXTURE0);
+			// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
 		}
 		EntityRenderer::render(
 			currentShader,

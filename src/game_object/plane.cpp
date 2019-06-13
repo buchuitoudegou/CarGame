@@ -18,8 +18,10 @@ void Plane::initPlaneVAO() {
 
 void Plane::draw(Shader* shader) const {
   shader->use();
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+// glActiveTexture(GL_TEXTURE0);
+// glBindTexture(GL_TEXTURE_2D, texture);
+// glActiveTexture(GL_TEXTURE1);
+// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
   glBindVertexArray(planeVAO);
   glDrawArrays(GL_TRIANGLES, 0, 6);
 	glBindVertexArray(0);
@@ -46,6 +48,7 @@ void Plane::initTexture() {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		stbi_image_free(data);
+		glBindTexture(GL_TEXTURE_2D, -1);
 	}
 }
 

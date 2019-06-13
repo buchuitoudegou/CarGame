@@ -10,7 +10,7 @@ in VS_OUT {
 } fs_in;
 
 // uniform sampler2D diffuseTexture;
-uniform sampler2D texture_diffuse_0;
+uniform sampler2D texture_diffuse_1;
 uniform sampler2D shadowMap;
 uniform bool useVertColor;
 uniform vec3 lightPos;
@@ -59,7 +59,7 @@ void main()
     if (fs_in.vertColor != vec3(-1, -1, -1))
         color = fs_in.vertColor;
     else
-        color = texture(texture_diffuse_0, fs_in.TexCoords).rgb;
+        color = texture(texture_diffuse_1, fs_in.TexCoords).rgb;
     vec3 normal = normalize(fs_in.Normal);
     vec3 lightColor = vec3(0.5);
     // ambient

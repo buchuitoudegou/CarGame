@@ -77,12 +77,10 @@ int main() {
 	 };
 	// // init renderer
 	RendererManager::init();
-	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
+	// SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
-
-  //Plane plane;
-	initShadow();
-	float near_plane = 1.0f, far_plane = 1277.5f;
+	initShadow();	
+	float near_plane = 1.0f, far_plane = 10000.0f;
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	glm::mat4 lightView = glm::lookAt(
 		glm::vec3(RendererManager::headlight.position), 
@@ -91,32 +89,33 @@ int main() {
 	lightSpaceMatrix = lightProjection * lightView;
 	// ----------------------------------
 	// init game object
+	Plane plane;
 	City city = City("res/ApocalypticCity/Apocalyptic City.obj");
-	//Car car = Car("res/car/newcar2/Avent.obj");
+	// Car car = Car("res/car/newcar2/Avent.obj");
 	Car car = Car("res/car/Car-Model/Car.obj");
 
-	/*Plane plane;
-	objs.push_back(&plane);*/
+	// objs.push_back(&plane);
 	objs.push_back(&city);
 	objs.push_back(&car);
 	
 	// ----------------------------------
 	// shader
-	Shader shadowShader("shaders/glsl/shadow_depth.vs", "shaders/glsl/shadow_depth.fs");
-	Shader carShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");
-	Shader cityShader("shaders/glsl/1.model_loading.vs", "shaders/glsl/1.model_loading.fs");
-	/*Shader planeShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");	*/
+	Shader shadowShader("./src/shaders/glsl/shadow_depth.vs", "./src/shaders/glsl/shadow_depth.fs");
+	Shader carShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
+	Shader cityShader("./src/shaders/glsl/1.model_loading.vs", "./src/shaders/glsl/1.model_loading.fs");
+	// Shader planeShader("./src/shaders/glsl/shadow_mapping.vs", "./src/shaders/glsl/shadow_mapping.fs");
+	carShader.setInt("texture_diffuse_1", 0);
 	carShader.setInt("shadowMap", 1);
 	cityShader.setInt("shadowMap", 1);
-	/*planeShader.setInt("texture_diffuse_0", 0);
-	planeShader.setInt("shadowMap", 1);
-	shaders.push_back(&planeShader);*/
+	// planeShader.setInt("texture_diffuse_1", 0);
+	// planeShader.setInt("shadowMap", 1);
+
+	// shaders.push_back(&planeShader);
 	shaders.push_back(&cityShader);
 	shaders.push_back(&carShader);
-	
 
-	//float dist = glm::distance2(camera.position, car.position);
 	while (!glfwWindowShouldClose(window)) {
+		camera.updateCamera();
 		curFrame = glfwGetTime();
 		// ----------------------------------
 		// process config
@@ -125,14 +124,14 @@ int main() {
 		glEnable(GL_DEPTH_TEST);
 		// ----------------------------------
 		// render shadow
-		// shadowMapping(shadowShader, lightSpaceMatrix);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, plane.texture);
+		shadowMapping(shadowShader, lightSpaceMatrix);
 		// ----------------------------------
 		// render sky box
-		skybox.render(camera.getViewMat(), projection);
+		// skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render scene
-		// glActiveTexture(GL_TEXTURE0);
-		// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
 		renderScene();
 		// ----------------------------------
 		// render imgui
@@ -152,10 +151,6 @@ void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		auto currentShader = shader == nullptr ? shaders[i] : shader;
 		auto model = objs[i]->getModelMat();
-		if (shader == nullptr) {
-			// glActiveTexture(GL_TEXTURE0);
-			// glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
-		}
 		EntityRenderer::render(
 			currentShader,
 			objs[i],
@@ -321,6 +316,7 @@ GLFWwindow* openGLallInit() {
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glEnable(GL_TEXTURE_2D);  
 	// glfwSetCursorPosCallback(window, mouseCallback);
 	// glfwSetKeyCallback(window, keyCallback);
 	return window;

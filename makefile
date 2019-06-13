@@ -10,7 +10,7 @@ $(build)/shader.o $(build)/SkyboxShader.o $(build)/stb_image.o $(build)/tiny_obj
 $(build)/glad.o $(build)/main.o $(build)/imgui.o $(build)/imgui_draw.o $(build)/imgui_impl_glfw.o \
 $(build)/imgui_impl_opengl3.o $(build)/imgui_widgets.o $(build)/mloader.o $(build)/mesh.o \
 $(build)/entityRenderer.o $(build)/car.o $(build)/RendererManager.o $(build)/entity.o \
-$(build)/plane.o
+$(build)/plane.o $(build)/city.o
 
 $(target) : $(objects)
 	g++ $(objects) $(CFLAGS) -lglfw -lassimp -o $@
@@ -93,6 +93,10 @@ $(build)/car.o : $(src)/game_object/car.cpp $(src)/game_object/car.h
 
 # build plane obj
 $(build)/plane.o : $(src)/game_object/plane.cpp $(src)/game_object/plane.h
+	g++ -c -o $@ $< $(CFLAGS)
+
+# build city
+$(build)/city.o : $(src)/game_object/City.cpp $(src)/game_object/City.h
 	g++ -c -o $@ $< $(CFLAGS)
 # -----------------------------
 

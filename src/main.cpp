@@ -31,6 +31,9 @@ Camera camera(glm::vec3(0.0f, 30.f, 7.0f));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
+float preAngle = 0;
+float relativeDirection = 10;
+float relativeHeight = 3;
 // ------------------------------
 // projection
 glm::mat4 lightSpaceMatrix;
@@ -45,7 +48,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void initShadow();
 void mouseCallback(GLFWwindow*, double xpos, double ypos);
-void move(GLfloat dtime);
+void move(GLfloat dtime, Car&);
 
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
@@ -62,7 +65,7 @@ int main() {
 	initImGui(window);
 	if (window == NULL)
 		return -1;
-	
+	Car car("res/car/newcar2/Avent.obj");
 	// std::vector<std::string> skyboxTextures = {
 	// 	"res/sky/right.jpg",
 	// 	"res/sky/left.jpg",
@@ -85,7 +88,7 @@ int main() {
 	lightSpaceMatrix = lightProjection * lightView;
 	// ----------------------------------
 	// init game object
-	Car car = Car("res/car/newcar2/Avent.obj");
+	// Car car = Car("res/car/newcar2/Avent.obj");
 	Plane plane;
 	objs.push_back(&plane);
 	objs.push_back(&car);
@@ -117,7 +120,7 @@ int main() {
 		// render imgui
 		renderImgui(true);
 
-		move(curFrame - lastFrame);
+		move(curFrame - lastFrame, car);
 		lastFrame = curFrame;
 
 		glfwMakeContextCurrent(window);
@@ -131,6 +134,9 @@ void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, objs[i]->position);
+		if (i == 1) {
+			model = objs[i]->getModelMat();
+		}
 		EntityRenderer::render(
 			shader,
 			objs[i],
@@ -213,18 +219,30 @@ void mouseCallback(GLFWwindow*, double xpos, double ypos) {
 	yPos = ypos;
 }
 
-void move(GLfloat dtime) {
+void move(GLfloat dtime, Car& car) {
 	if (keys[GLFW_KEY_W]) {
-		camera.keyboardHandler(FORWARD, dtime);
+		car.speedup(dtime);
 	}
-	if (keys[GLFW_KEY_S]) {
-		camera.keyboardHandler(BACKWARD, dtime);
+	else if (keys[GLFW_KEY_S]) {
+		car.speeddown(dtime);
+	}
+	else {
+		car.friction(dtime);
+	}
+	if (car.speed != 0)
+	{
+		car.move(dtime);
+		// glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
+		// camera.position = car.position + relativePosition;
+		// camera.yaw -= car.angle - preAngle;
+		// preAngle = car.angle;
+		// camera.updateCamera();
 	}
 	if (keys[GLFW_KEY_A]) {
-		camera.keyboardHandler(LEFT, dtime);
+		car.rotate(Car::turnAngle);
 	}
 	if (keys[GLFW_KEY_D]) {
-		camera.keyboardHandler(RIGHT, dtime);
+		car.rotate(-Car::turnAngle);
 	}
 }
 
@@ -277,7 +295,7 @@ GLFWwindow* openGLallInit() {
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	// glfwSetCursorPosCallback(window, mouseCallback);
-	// glfwSetKeyCallback(window, keyCallback);
+	glfwSetKeyCallback(window, keyCallback);
 	return window;
 }
 

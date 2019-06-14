@@ -18,6 +18,9 @@ public:
   unsigned int planeVAO;
   void initPlaneVAO();
   Plane();
+  glm::mat4 getModelMat() const {
+    return glm::mat4(1.0f);
+  }
   void draw(Shader* shader = nullptr) const;
 };
 

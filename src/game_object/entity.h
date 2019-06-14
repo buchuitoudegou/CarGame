@@ -14,6 +14,7 @@ public:
   bool useVertColor = false;
   glm::vec3 vertColor = glm::vec3(0, 0, 0);
   virtual void draw(Shader* shader = nullptr) const = 0;
+  virtual glm::mat4 getModelMat() const;
 };
 
 #endif

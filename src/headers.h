@@ -9,12 +9,17 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "game_object/car.h"
+#include "game_object/City.h"
 #include "game_object/plane.h"
 
 #include "camera/camera.h"
 #include "stb_image/stb_image.h"
 #include "renderers/RendererManager.h"
 #include "./model_loader/loader.h"
+#include "./particle//ParticleGenerator.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)

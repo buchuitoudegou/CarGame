@@ -5,7 +5,7 @@ using namespace std;
 
 Camera::Camera(glm::vec3 pos, glm::vec3 up_, GLfloat ya, GLfloat pit) {
 	front = glm::vec3(0.0f, 0.0f, 0.0f);
-	speed = 10.0f;
+	speed = 9.0f;
 	sensitivity = 0.25f;
 	zoom = 45.0f;
 

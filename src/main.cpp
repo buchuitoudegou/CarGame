@@ -9,6 +9,16 @@ const float SKYBOX_SIZE = 800.0f;
 // -------------------------------
 // shadow params
 unsigned int depthMapFBO;
+unsigned int intermediateDepthMapFBO;
+
+unsigned int quadVAO;
+unsigned int quadVBO;
+unsigned int framebuffer;
+unsigned int textureColorBufferMultiSampled;
+unsigned int intermediateFBO;
+unsigned int screenTexture;
+
+
 float SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
 float sleft = -10, sright = 10, sbottom = -10, stop = 10, sfar_plane = 77.f, snear_plane = 1.0;
 // -------------------------------
@@ -62,6 +72,15 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 void initTextShader(Shader& shader);
 
 
+void initFrameBuffer();
+void initIntermediateBuffer();
+void renderScreenQuad(Shader &shader);
+
+void blitBufferColor();
+void blitBufferDepth();
+
+
+
 int main() {
 	GLfloat curFrame = 0.0f, lastFrame = 0.0f;
 	camera.yaw = 190;
@@ -93,6 +112,9 @@ int main() {
 	 SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
 	initShadow();
+	initFrameBuffer();
+	initIntermediateBuffer();
+
 	//float near_plane = 1.0f, far_plane = 77.5f;
 	
 	// ----------------------------------
@@ -114,10 +136,13 @@ int main() {
 	initTextShader(textShader);
 
 	Shader carParticleShader("shaders/glsl/car_particle.vs", "shaders/glsl/car_particle.fs");
-	Texture2D carParticleTexture("res/particle/gas2.jpg", GL_TRUE);
+	Texture2D carParticleTexture("res/particle/gas2.jpg", GL_FALSE);
 
 	ParticleGenerator *Particles = new ParticleGenerator(carParticleShader, carParticleTexture, 700);
 	carParticleShader.setInt("sprite", 0);
+
+	Shader screenShader("shaders/glsl/screen.vs", "shaders/glsl/screen.fs");
+	screenShader.setInt("screenTexture", 0);
 
 	while (!glfwWindowShouldClose(window)) {
 		glm::mat4 lightProjection = glm::ortho(sleft, sright, sbottom, stop, snear_plane, sfar_plane);
@@ -138,7 +163,7 @@ int main() {
 		// ----------------------------------
 		// render text
 		std::string t = "speed" + std::to_string(car.speed);
-		RenderText(textShader,t , 12.0f, 12.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+		
 		// ----------------------------------
 		// render sky box
 		//skybox.render(camera.getViewMat(), projection);
@@ -146,17 +171,26 @@ int main() {
 		// render scene
 		glActiveTexture(GL_TEXTURE0 + 100);
 		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		//
 		renderScene(&entityShader);
-		// ----------------------------------
-		// render imgui
+		RenderText(textShader, t, 12.0f, 12.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
 		GLfloat dt = curFrame - lastFrame;
 		Particles->Update(dt, car, 11, glm::vec3(-car.direction.x * particleScale, particleOffset.y - car.direction.y, -car.direction.z * particleScale));
 		Particles->Draw(camera.getViewMat(), projection);
+		// render imgui
 		renderImgui(true);
+		blitBufferColor();
+		// ----------------------------------
+		
 
 		move(curFrame - lastFrame, car);
 		lastFrame = curFrame;
 
+		renderScreenQuad(screenShader);
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -319,6 +353,7 @@ GLFWwindow* openGLallInit() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+	//glfwWindowHint(GLFW_SAMPLES, 4);
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "firWindow", NULL, NULL);
 	if (window == NULL)
 	{
@@ -343,6 +378,7 @@ GLFWwindow* openGLallInit() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_MULTISAMPLE);
 	return window;
 }
 
@@ -461,6 +497,99 @@ void initTextShader(Shader& shader)
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+}
+
+
+void initFrameBuffer()
+{
+	float quadVertices[] = {   // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+							   // positions   // texCoords
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		-1.0f, -1.0f,  0.0f, 0.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+
+		-1.0f,  1.0f,  0.0f, 1.0f,
+		1.0f, -1.0f,  1.0f, 0.0f,
+		1.0f,  1.0f,  1.0f, 1.0f
+	};
+
+	
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	
+	glGenFramebuffers(1, &framebuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+	// create a multisampled color attachment texture
+	
+	glGenTextures(1, &textureColorBufferMultiSampled);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled);
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, SCR_WIDTH, SCR_HEIGHT, GL_TRUE);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled, 0);
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void initIntermediateBuffer()
+{
+	
+	glGenFramebuffers(1, &intermediateFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
+	// create a color attachment texture
+	glGenTextures(1, &screenTexture);
+	glBindTexture(GL_TEXTURE_2D, screenTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		cout << "ERROR::FRAMEBUFFER:: Intermediate framebuffer is not complete!" << endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void renderScreenQuad(Shader & shader)
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+
+	// draw Screen quad
+	shader.use();
+	glBindVertexArray(quadVAO);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, screenTexture); // use the now resolved color attachment as the quad's texture
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+}
+
+void blitBufferColor()
+{
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, intermediateFBO);
+	glBlitFramebuffer(0, 0, SCR_WIDTH, SCR_HEIGHT, 0, 0, SCR_WIDTH, SCR_HEIGHT, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+}
+
+void blitBufferDepth()
+{
 }
 
 

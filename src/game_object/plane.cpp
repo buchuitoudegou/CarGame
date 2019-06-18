@@ -19,7 +19,7 @@ void Plane::initPlaneVAO() {
 void Plane::draw(Shader* shader) const {
   shader->use();
   glBindVertexArray(planeVAO);
-  glDrawArrays(GL_TRIANGLES, 0, 6);
+  glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 }
 

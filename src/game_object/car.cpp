@@ -70,7 +70,7 @@ Car::Car(const string& path) {
   angle = 0.0;
   originAngle = 0.0f;
   loader = new ModelLoader(path.c_str());
-  position = glm::vec3(0, -0.5, 0);
+  position = glm::vec3(0, 0.5, 0);
 }
 
 Car::~Car() {

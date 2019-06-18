@@ -40,15 +40,15 @@ float rotation = 0.0f;
 // camera
 // camera 
 
-float  particleScale= 2.35;
- 
-float preAngle = 0; 
-float relativeDirection = 18; 
-float relativeHeight = 5; 
+float  particleScale = 2.35;
+
+float preAngle = 0;
+float relativeDirection = 18;
+float relativeHeight = 5;
 
 glm::vec3 particleOffset = glm::vec3(0.0, 0.4, 0.0);
 
-Camera camera(glm::vec3(relativeDirection, -0.5 + relativeHeight, 0)); 
+Camera camera(glm::vec3(relativeDirection, -0.5 + relativeHeight, 0));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
@@ -93,38 +93,38 @@ int main() {
 	initImGui(window);
 	if (window == NULL)
 		return -1;
-	
-	 std::vector<std::string> skyboxTextures = {
-		 "res/sky/sky_rt.jpg",
 
-		 "res/sky/sky_lf.jpg",
+	std::vector<std::string> skyboxTextures = {
+		"res/sky/sky_rt.jpg",
 
-		 "res/sky/sky_up.jpg",
+		"res/sky/sky_lf.jpg",
 
-		 "res/sky/sky_dn.jpg",
+		"res/sky/sky_up.jpg",
 
-		 "res/sky/sky_bk.jpg",
+		"res/sky/sky_dn.jpg",
 
-		 "res/sky/sky_ft.jpg"
-	 };
+		"res/sky/sky_bk.jpg",
+
+		"res/sky/sky_ft.jpg"
+	};
 	// // init renderer
 	RendererManager::init();
-	 SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
+	SkyboxRenderer skybox(skyboxTextures, SKYBOX_SIZE);
 	// init shadow
 	initShadow();
-	initFrameBuffer();
-	initIntermediateBuffer();
+	//initFrameBuffer();
+	//initIntermediateBuffer();
 
 	//float near_plane = 1.0f, far_plane = 77.5f;
-	
+
 	// ----------------------------------
 	// init game object
 	Car car("res/car/newcar2/Avent.obj");
-	City city("res/Unity/3dsmax3.FBX");
+	//City city("res/Unity/abc.fbx");
 	Plane plane;
 	objs.push_back(&plane);
 	objs.push_back(&car);
-	objs.push_back(&city);
+	//objs.push_back(&city);
 	// ----------------------------------
 	// shader
 	Shader shadowShader("shaders/glsl/shadow_depth.vs", "shaders/glsl/shadow_depth.fs");
@@ -163,17 +163,17 @@ int main() {
 		// ----------------------------------
 		// render text
 		std::string t = "speed" + std::to_string(car.speed);
-		
+
 		// ----------------------------------
 		// render sky box
-		//skybox.render(camera.getViewMat(), projection);
+		skybox.render(camera.getViewMat(), projection);
 		// ----------------------------------
 		// render scene
 		glActiveTexture(GL_TEXTURE0 + 100);
 		glBindTexture(GL_TEXTURE_2D, RendererManager::depthMap);
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		//glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_DEPTH_TEST);
 		//
 		renderScene(&entityShader);
@@ -183,14 +183,14 @@ int main() {
 		Particles->Draw(camera.getViewMat(), projection);
 		// render imgui
 		renderImgui(true);
-		blitBufferColor();
+		//blitBufferColor();
 		// ----------------------------------
-		
+
 
 		move(curFrame - lastFrame, car);
 		lastFrame = curFrame;
 
-		renderScreenQuad(screenShader);
+		//renderScreenQuad(screenShader);
 		glfwMakeContextCurrent(window);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -202,9 +202,13 @@ int main() {
 void renderScene(Shader* shader) {
 	for (int i = 0; i < objs.size(); ++i) {
 		glm::mat4 model = glm::mat4(1.0f);
+
 		model = glm::translate(model, objs[i]->position);
-		if (i != 0) {
+
+		if (i == 1) {
+
 			model = objs[i]->getModelMat();
+
 		}
 		EntityRenderer::render(
 			shader,
@@ -301,11 +305,11 @@ void move(GLfloat dtime, Car& car) {
 	if (car.speed != 0)
 	{
 		car.move(dtime);
-		 glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
-		 camera.position = car.position + relativePosition;
-		 camera.yaw -= car.angle - preAngle;
-		 preAngle = car.angle;
-		 camera.updateCamera();
+		glm::vec3 relativePosition = glm::vec3(-relativeDirection * car.direction.x, relativeHeight, -relativeDirection * car.direction.z);
+		camera.position = car.position + relativePosition;
+		camera.yaw -= car.angle - preAngle;
+		preAngle = car.angle;
+		camera.updateCamera();
 	}
 	if (keys[GLFW_KEY_A]) {
 		car.rotate(Car::turnAngle);
@@ -375,9 +379,7 @@ GLFWwindow* openGLallInit() {
 	// glfwSetCursorPosCallback(window, mouseCallback);
 	glfwSetKeyCallback(window, keyCallback);
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	//glEnable(GL_MULTISAMPLE);
 	return window;
 }
@@ -513,7 +515,7 @@ void initFrameBuffer()
 		1.0f,  1.0f,  1.0f, 1.0f
 	};
 
-	
+
 	glGenVertexArrays(1, &quadVAO);
 	glGenBuffers(1, &quadVBO);
 	glBindVertexArray(quadVAO);
@@ -524,11 +526,11 @@ void initFrameBuffer()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-	
+
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 	// create a multisampled color attachment texture
-	
+
 	glGenTextures(1, &textureColorBufferMultiSampled);
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureColorBufferMultiSampled);
 	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, SCR_WIDTH, SCR_HEIGHT, GL_TRUE);
@@ -549,7 +551,7 @@ void initFrameBuffer()
 
 void initIntermediateBuffer()
 {
-	
+
 	glGenFramebuffers(1, &intermediateFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, intermediateFBO);
 	// create a color attachment texture
@@ -595,6 +597,9 @@ void blitBufferDepth()
 
 void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
 {
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Activate corresponding render state	
 	shader.use();
 	shader.setVec3("textColor", glm::vec3(color.x, color.y, color.z));
@@ -636,4 +641,7 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 	}
 	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
 }

@@ -17,6 +17,7 @@ unsigned int framebuffer;
 unsigned int textureColorBufferMultiSampled;
 unsigned int intermediateFBO;
 unsigned int screenTexture;
+unsigned int oceanVAO, oceanVBO, oceanEBO;
 
 
 float SHADOW_WIDTH = 1000, SHADOW_HEIGHT = 1000;
@@ -52,6 +53,7 @@ Camera camera(glm::vec3(relativeDirection, -0.5 + relativeHeight, 0));
 // -------------------------------
 // game objs
 vector<Entity*> objs;
+
 // ------------------------------
 // projection
 glm::mat4 lightSpaceMatrix;
@@ -62,6 +64,11 @@ void initImGui(GLFWwindow* window);
 void renderImgui(bool menu);
 void renderScene(Shader* shader);
 void shadowMapping(Shader& simpleDepthShader, glm::mat4 lightSpaceMatrix);
+
+void initOceanBuffer(float *vertices, int vertexCount, unsigned int *indices, int indexCount);
+void renderOcean(Shader &waterShader, unsigned int skybox_texture, unsigned int heightMap, unsigned int normalMap, int indexCount);
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void initShadow();
@@ -129,6 +136,7 @@ int main() {
 	// shader
 	Shader shadowShader("shaders/glsl/shadow_depth.vs", "shaders/glsl/shadow_depth.fs");
 	Shader entityShader("shaders/glsl/shadow_mapping.vs", "shaders/glsl/shadow_mapping.fs");
+	Shader waterShader("shaders/glsl/water.vs", "shaders/glsl/water.fs");
 	entityShader.use();
 	entityShader.setInt("shadowMap", 100);
 
@@ -143,6 +151,12 @@ int main() {
 
 	Shader screenShader("shaders/glsl/screen.vs", "shaders/glsl/screen.fs");
 	screenShader.setInt("screenTexture", 0);
+
+	// **************************** OCEAN ***********************************
+	Ocean ocean(glm::vec2(0.2f, 2.0f), 32, 0.05f);
+	ocean.generateWave((float)glfwGetTime());
+	initOceanBuffer(ocean.vertices, ocean.vertexCount, ocean.indices, ocean.indexCount);
+	//***************************************************************************
 
 	while (!glfwWindowShouldClose(window)) {
 		glm::mat4 lightProjection = glm::ortho(sleft, sright, sbottom, stop, snear_plane, sfar_plane);
@@ -181,10 +195,16 @@ int main() {
 		GLfloat dt = curFrame - lastFrame;
 		Particles->Update(dt, car, 11, glm::vec3(-car.direction.x * particleScale, particleOffset.y - car.direction.y, -car.direction.z * particleScale));
 		Particles->Draw(camera.getViewMat(), projection);
+		// ----------------------------------
+
+		//************************************
+		ocean.generateWave((float)glfwGetTime());
+		renderOcean(waterShader, skybox.getSkyboxTexture(), ocean.heightMap, ocean.normalMap, ocean.indexCount);
+		//************************************
+
 		// render imgui
 		renderImgui(true);
 		//blitBufferColor();
-		// ----------------------------------
 
 
 		move(curFrame - lastFrame, car);
@@ -644,4 +664,51 @@ void RenderText(Shader &shader, std::string text, GLfloat x, GLfloat y, GLfloat 
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
+}
+
+void initOceanBuffer(float *vertices, int vertexCount, unsigned int *indices, int indexCount) {
+	glGenVertexArrays(1, &oceanVAO);
+	glBindVertexArray(oceanVAO);
+	glGenBuffers(1, &oceanVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, oceanVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertexCount, vertices, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	glGenBuffers(1, &oceanEBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, oceanEBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indexCount, indices, GL_STATIC_DRAW);
+}
+
+void renderOcean(Shader &waterShader, unsigned int skybox_texture, unsigned int heightMap, unsigned int normalMap, int indexCount) {
+	glm::vec3 deepWaterColorSunset = glm::vec3(powf(0.14f, 2.2f),
+		powf(0.15f, 2.2f),
+		powf(0.16f, 2.2f));
+	glm::vec3 deepWaterColorSunny = glm::vec3(powf(0.11f, 2.2f),
+		powf(0.18f, 2.2f),
+		powf(0.35f, 2.2f));
+
+	waterShader.use();
+	// Set vertex shader data
+	waterShader.setMat4("view", camera.getViewMat());
+	waterShader.setMat4("projection", projection);
+	waterShader.setMat4("model", glm::mat4(1.0f));
+	waterShader.setFloat("time", (float)glfwGetTime());
+	// Set fragment shader data
+	waterShader.setVec3("viewPos", camera.position);
+	waterShader.setVec3("lightDir", glm::vec3(-1.0f, 1.0f, -1.0f));
+	waterShader.setVec3("lightPos", glm::vec3(-1000.0f, -1000.0f, 5000.0f));
+	waterShader.setVec3("diffuse", deepWaterColorSunset);
+	waterShader.setVec3("ambient", deepWaterColorSunset);
+	waterShader.setVec3("specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	waterShader.setInt("heightMap", 0);
+	waterShader.setInt("normalMap", 1);
+	waterShader.setInt("skybox", 2);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, heightMap);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normalMap);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture);
+	glBindVertexArray(oceanVAO);
+	glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 }

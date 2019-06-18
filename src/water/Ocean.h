@@ -11,7 +11,7 @@
 class Ocean
 {
 public:
-    Ocean(glm::vec2 wind, int resolution, float amplitude);
+    Ocean(glm::vec2 wind, int resolution_N, int resolution_M, float amplitude, int x, int z);
     ~Ocean();
 
     // Given current time, generate wave
@@ -27,19 +27,22 @@ public:
     // The flag to control generating method
     bool useFFT;
 private:
+	// center of the ocean
+	int center_x, center_z;
+
     float g;
     float PI;
     float unitWidth;
     // Choppiness of the wave
     float choppy;
     // Resolution
-    int N;
+    int N, M;
     // Water Length
-    int L;
+    int Lx, Lz;
     // Wave height amplitude parameter
     float A;
     // Wind direction and speed in one vector
-    glm::vec2 w;
+    glm::vec2 v_wind;
     // the buffer to store computed results
     std::complex<float> *hBuffer;
     glm::vec2 *kBuffer;

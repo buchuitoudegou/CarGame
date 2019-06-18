@@ -12,7 +12,7 @@
 #include "game_object/City.h"
 #include "game_object/plane.h"
 
-#include "water/Ocean.h"
+#include "water/ocean.h"
 
 #include "camera/camera.h"
 #include "stb_image/stb_image.h"

@@ -152,11 +152,11 @@ int main() {
 	Shader screenShader("shaders/glsl/screen.vs", "shaders/glsl/screen.fs");
 	screenShader.setInt("screenTexture", 0);
 
-	// **************************** OCEAN ***********************************
-	Ocean ocean(glm::vec2(0.2f, 2.0f), 32, 0.05f);
+	// ocean
+	// parameters stand for : wind_velocity, ocean_x_len, ocean_z_len, amplitude, center_x of the ocean, center_z of the ocean
+	Ocean ocean(glm::vec2(0.2f, 2.0f), 16, 16, 0.05f, -10, 0);	
 	ocean.generateWave((float)glfwGetTime());
 	initOceanBuffer(ocean.vertices, ocean.vertexCount, ocean.indices, ocean.indexCount);
-	//***************************************************************************
 
 	while (!glfwWindowShouldClose(window)) {
 		glm::mat4 lightProjection = glm::ortho(sleft, sright, sbottom, stop, snear_plane, sfar_plane);
@@ -197,10 +197,10 @@ int main() {
 		Particles->Draw(camera.getViewMat(), projection);
 		// ----------------------------------
 
-		//************************************
+		//render ocean
 		ocean.generateWave((float)glfwGetTime());
 		renderOcean(waterShader, skybox.getSkyboxTexture(), ocean.heightMap, ocean.normalMap, ocean.indexCount);
-		//************************************
+		
 
 		// render imgui
 		renderImgui(true);

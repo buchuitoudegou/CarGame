@@ -24,3 +24,6 @@ make & make run
 3. add additional libraries to the project. (e.g. glfw3.lib, assimp.lib)
 4. add `assimp.dll` to the root directory
 5. run the project on vs.
+
+## changelog
+move to gitee from 6.18
